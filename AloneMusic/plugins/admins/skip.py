@@ -204,9 +204,11 @@ async def skip(cli, message: Message, _, chat_id):
         if videoid == "telegram":
             button = stream_markup(_, chat_id)
             run = await message.reply_photo(
-                photo=config.TELEGRAM_AUDIO_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
+                photo=(
+                    config.TELEGRAM_AUDIO_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL
+                ),
                 has_spoiler=True,
                 caption=_["stream_1"].format(
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
@@ -218,9 +220,11 @@ async def skip(cli, message: Message, _, chat_id):
         elif videoid == "soundcloud":
             button = stream_markup(_, chat_id)
             run = await message.reply_photo(
-                photo=config.SOUNCLOUD_IMG_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
+                photo=(
+                    config.SOUNCLOUD_IMG_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL
+                ),
                 has_spoiler=True,
                 caption=_["stream_1"].format(
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user

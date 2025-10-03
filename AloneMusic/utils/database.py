@@ -226,6 +226,7 @@ async def autoend_off():
     chat_id = 1234
     await autoenddb.delete_one({"chat_id": chat_id})
 
+
 async def is_autoleave() -> bool:
     chat_id = 1234
     user = await autoleavedb.find_one({"chat_id": chat_id})

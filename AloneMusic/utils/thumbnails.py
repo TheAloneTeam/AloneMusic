@@ -26,18 +26,20 @@ def changeImageSize(maxWidth, maxHeight, image):
     newImage = image.resize((newWidth, newHeight))
     return newImage
 
+
 def truncate(text):
     list = text.split(" ")
     text1, text2 = "", ""
     for i in list:
-        if len(text1) + len(i) < 30:        
+        if len(text1) + len(i) < 30:
             text1 += " " + i
-        elif len(text2) + len(i) < 30:       
+        elif len(text2) + len(i) < 30:
             text2 += " " + i
     return [text1.strip(), text2.strip()]
 
+
 async def get_thumb(videoid: str):
-    #if os.path.isfile(f"cache/{videoid}.png"):
+    # if os.path.isfile(f"cache/{videoid}.png"):
     #    return f"cache/{videoid}.png"
 
     url = f"https://www.youtube.com/watch?v={videoid}"
@@ -67,9 +69,7 @@ async def get_thumb(videoid: str):
         async with aiohttp.ClientSession() as session:
             async with session.get(thumbnail) as resp:
                 if resp.status == 200:
-                    f = await aiofiles.open(
-                        f"cache/thumb{videoid}.png", mode="wb"
-                    )
+                    f = await aiofiles.open(f"cache/thumb{videoid}.png", mode="wb")
                     await f.write(await resp.read())
                     await f.close()
 
@@ -118,16 +118,16 @@ async def get_thumb(videoid: str):
             font=arial,
         )
         draw.line(
-             [(565, 385), (1130, 385)],
-             fill="white",
-             width=8,
-             joint="curve",
+            [(565, 385), (1130, 385)],
+            fill="white",
+            width=8,
+            joint="curve",
         )
         draw.line(
-             [(565, 385), (999, 385)],
-             fill=rand,
-             width=8,
-             joint="curve",
+            [(565, 385), (999, 385)],
+            fill=rand,
+            width=8,
+            joint="curve",
         )
         draw.ellipse(
             [(999, 375), (1020, 395)],
