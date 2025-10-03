@@ -23,6 +23,7 @@ close = 30
 async def welcome(_, message: Message):
     await Alone.stop_stream_force(message.chat.id)
 
+
 @app.on_message(filters.left_chat_member, group=69)
 async def bot_kick(_, msg: Message):
     if msg.left_chat_member.id == app.id:
