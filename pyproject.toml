@@ -58,7 +58,7 @@ dependencies = [
   "yt-dlp>=2024.8.6",
   "youtube-search>=2.1.2",
   "youtube-search-python>=1.6.6",
-  "py-yt-search==0.5.3",
+  "py-yt-search==0.5.4",
   "spotipy>=2.24.0",
   "openai>=1.40.0",
   "prettytable>=3.12.0"
