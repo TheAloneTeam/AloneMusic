@@ -47,7 +47,7 @@ Requires-Dist: speedtest-cli>=2.1.3
 Requires-Dist: yt-dlp>=2024.8.6
 Requires-Dist: youtube-search>=2.1.2
 Requires-Dist: youtube-search-python>=1.6.6
-Requires-Dist: py-yt-search==0.5.3
+Requires-Dist: py-yt-search==0.5.4
 Requires-Dist: spotipy>=2.24.0
 Requires-Dist: openai>=1.40.0
 Requires-Dist: prettytable>=3.12.0
