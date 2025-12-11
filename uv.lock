@@ -159,7 +159,7 @@ requires-dist = [
     { name = "prettytable", specifier = ">=3.12.0" },
     { name = "psutil", specifier = ">=5.9.8" },
     { name = "py-tgcalls", specifier = "==2.2.8" },
-    { name = "py-yt-search", specifier = "==0.5.3" },
+    { name = "py-yt-search", specifier = "==0.5.4" },
     { name = "pyrofork", specifier = ">=2.3.45" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "pyyaml", specifier = ">=6.0.1" },
@@ -858,12 +858,12 @@ wheels = [
 
 [[package]]
 name = "py-yt-search"
-version = "0.5.3"
+version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/b1/43f4a4572aa33b790adfd745fcffe50e62ec8ca914a03828a478124ce20d/py_yt_search-0.5.3.tar.gz", hash = "sha256:8b9c2753789c8ccc7c7c148cafda36d3b71e4384624f31fdb525dae1af7eac95", size = 35434, upload-time = "2025-11-25T11:35:48.316Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ea/92/12cad497839a07fb8fa6e3361c31a3081643e4f91bc171b5dd7d5fdb08b5/py_yt_search-0.5.4.tar.gz", hash = "sha256:98253771448ae599fb0c390ae43abd73a4dd5e9eb74d2229d2fb10b02dfc0b8f", size = 35581, upload-time = "2025-12-11T13:47:41.232Z" }
 
 [[package]]
 name = "pyaes"
