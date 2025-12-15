@@ -1,0 +1,2 @@
+[console_scripts]
+alonemusic = AloneMusic.__main__:main
