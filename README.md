@@ -43,50 +43,49 @@ Click this button to deploy instantly on **Heroku**:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TheAloneTeam/AloneMusic)
 
-Or deploy manually:
-```#!/bin/bash
 
-echo "🚀 AloneMusic VPS Deployment Starting..."
+- **Update System and Install Dependencies**:  
+  ```bash
+  sudo apt update && sudo apt upgrade -y && sudo apt install -y ffmpeg git python3-pip tmux nano
+  ```
 
-# 1. System update
-sudo apt update && sudo apt upgrade -y
+- **Install uv for Efficient Dependency Management**:
+  ```bash
+  pip install --upgrade uv
+  ```
 
-# 2. Install system dependencies
-sudo apt install -y ffmpeg git python3 python3-venv python3-pip tmux nano build-essential
 
-# 3. Remove old folder if exists
-if [ -d "AloneMusic" ]; then
-    rm -rf AloneMusic
-fi
+- **Clone the Repository:**  
+  ```bash
+  git clone https://github.com/TheAloneTeam/AloneMusic cd AloneMusic
+  ```
+  
+- **Create and Activate a Virtual Environment:**
+  - You can create and activate the virtual Environment before cloning the repo.
+  ```bash
+  uv venv .venv && source .venv/bin/activate
+  ```
 
-# 4. Clone repo
-git clone https://github.com/TheAloneTeam/AloneMusic
-cd AloneMusic || exit 1
+- Install Python Requirements:  
+  ```bash
+  uv pip install -e .
+  ```
 
-# 5. Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+- Copy and Edit Environment Variables:  
+  ```bash
+  cp sample.env .env && nano .env
+  ```
+  After editing, press `Ctrl+X`, then `Y`, and press **Enter** to save the changes.
 
-# 6. Upgrade pip
-pip install --upgrade pip
+- Start a tmux Session to Keep the Bot Running:  
+  ```bash
+  tmux
+  ```
 
-# 7. Install dependencies (correct way)
-pip install -e .
+- Run the Bot:  
+  ```bash
+  python3 -m AloneMusic
+  ```
 
-# 8. Setup env file
-if [ -f "sample.env" ]; then
-    cp sample.env .env
-    echo "⚠️  Please edit .env and set BOT_TOKEN, API_ID, API_HASH, STRING_SESSION, MONGO_DB etc."
-    sleep 2
-    nano .env
-else
-    echo "❌ sample.env not found! Create .env manually."
-    exit 1
-fi
-
-# 9. Start bot in tmux
-tmux new-session -d -s alone "source venv/bin/activate && python3 -m AloneMusic"
-
-echo "✅ AloneMusic Bot Deployed Successfully!"
-echo "➡ Bot running inside tmux session: alone"
-echo "➡ View logs: tmux attach -t alone"
+- Detach from the **tmux** Session (Bot keeps running):  
+  Press `Ctrl+b`, then `d`
