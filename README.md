@@ -55,8 +55,7 @@ Click this button to deploy instantly on **Heroku**:
   ```
   ```bash
   pip install uv
-  ```
-  ```
+```
 - **Clone the Repository:**  
   ```bash
   git clone https://github.com/TheAloneTeam/AloneMusic cd AloneMusic
