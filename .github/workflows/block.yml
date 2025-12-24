@@ -14,37 +14,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      # Setup Python
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # Install uv
+      # ✅ Install uv (CI-safe)
       - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install uv
 
-      # Add uv to PATH
-      - name: Add uv to PATH
-        run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+      # ✅ Verify uv (debug safety)
+      - name: Verify uv
+        run: uv --version
 
-      # Sync deps (strict, reproducible)
+      # Sync deps
       - name: Sync from uv.lock
         run: uv sync --frozen
 
-      # Install formatting & audit tools
+      # Tools
       - name: Install tools
         run: uv pip install black isort ruff pip-audit
 
-      # Black + isort formatting
       - name: Format python files
         run: |
           uv run black .
           uv run isort .
 
-      # Ruff auto-fix (never fail CI)
       - name: Ruff auto-fix
         run: |
           uv run ruff check . \
@@ -52,7 +50,6 @@ jobs:
             --unsafe-fixes \
             --exit-zero
 
-      # Check if anything changed (code / uv.lock)
       - name: Detect changes
         run: |
           uv lock --check || true
@@ -62,12 +59,10 @@ jobs:
             echo "CHANGED=false" >> $GITHUB_ENV
           fi
 
-      # Security audit (won’t fail build)
       - name: Dependency audit
         continue-on-error: true
         run: uv run pip-audit
 
-      # Create PR only if changes exist
       - name: Create Pull Request
         if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
         uses: peter-evans/create-pull-request@v8
@@ -75,13 +70,10 @@ jobs:
           commit-message: "Auto update: full repo auto-fix"
           title: "✅ Automated repo auto-fix"
           body: |
-            ✔ Black formatting  
-            ✔ Import sorting (isort)  
-            ✔ Ruff auto-fix (safe + unsafe)  
-            ✔ uv.lock consistency check  
-
-            ⚡ This PR is fully automated.
-            ❌ CI will never fail due to lint issues.
+            ✔ Black formatting
+            ✔ Import sorting (isort)
+            ✔ Ruff auto-fix
+            ✔ uv.lock consistency
           labels: auto-fix, uv, ci
           branch: repo-auto-check-${{ github.run_id }}
           delete-branch: true
