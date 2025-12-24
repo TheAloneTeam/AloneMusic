@@ -51,7 +51,9 @@ Click this button to deploy instantly on **Heroku**:
 
 - **Install uv for Efficient Dependency Management**:
   ```bash
-  pip install --upgrade uv
+  
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.cargo/bin:$PATH"
   ```
 
 
