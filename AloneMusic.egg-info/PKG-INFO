@@ -106,7 +106,9 @@ Click this button to deploy instantly on **Heroku**:
 
 - **Install uv for Efficient Dependency Management**:
   ```bash
-  pip install --upgrade uv
+  
+python -m pip install --upgrade pip
+pip install uv
   ```
 
 
