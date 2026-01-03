@@ -24,6 +24,7 @@ from AloneMusic.utils.formatters import seconds_to_min
 from AloneMusic.utils.inline import (close_markup, stream_markup,
                                      stream_markup_timer)
 from AloneMusic.utils.stream.autoclear import auto_clean
+import config
 from AloneMusic.utils.thumbnails import get_thumb
 from config import (BANNED_USERS, SOUNCLOUD_IMG_URL, STREAM_IMG_URL,
                     TELEGRAM_AUDIO_URL, TELEGRAM_VIDEO_URL, adminlist,

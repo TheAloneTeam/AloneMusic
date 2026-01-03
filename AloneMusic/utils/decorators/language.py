@@ -7,8 +7,10 @@
 #
 # All rights reserved.
 
+from AloneMusic import app
 from AloneMusic.misc import SUDOERS
 from AloneMusic.utils.database import get_lang, is_maintenance
+from config import SUPPORT_CHAT
 from strings import get_string
 
 
