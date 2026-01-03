@@ -1,3 +1,1 @@
-uv python use 3.12.15
-uv python pin
-uv sync --refresh
+3.12
