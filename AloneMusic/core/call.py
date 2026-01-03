@@ -32,6 +32,7 @@ from AloneMusic.utils.exceptions import AssistantErr
 from AloneMusic.utils.formatters import (check_duration, seconds_to_min,
                                          speed_converter)
 from AloneMusic.utils.inline.play import stream_markup
+from AloneMusic.utils.logger import send_large_error
 from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
 from strings import get_string
