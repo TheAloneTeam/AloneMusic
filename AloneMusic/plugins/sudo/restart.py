@@ -112,7 +112,7 @@ async def update_(client, message, _):
                 text=_["server_10"].format(err),
             )
     else:
-        os.system("pip3 install -r requirements.txt")
+        os.system("pip3 install .")
         os.system(f"kill -9 {os.getpid()} && bash start")
         exit()
 
