@@ -1,0 +1,143 @@
+name: 🛠️ Full Repo Auto Fix & Repair
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-fix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ─────────────────────────────
+      # 1️⃣ Checkout
+      # ─────────────────────────────
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ─────────────────────────────
+      # 2️⃣ Python Setup
+      # ─────────────────────────────
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      # ─────────────────────────────
+      # 3️⃣ Install uv (safe method)
+      # ─────────────────────────────
+      - name: Install uv
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv
+
+      - name: Verify uv
+        run: uv --version
+
+      # ─────────────────────────────
+      # 4️⃣ Dependency Repair
+      # ─────────────────────────────
+      - name: Sync dependencies (repair mode)
+        run: |
+          if [ -f uv.lock ]; then
+            uv sync --frozen || uv sync
+          else
+            uv pip install -r requirements.txt || true
+          fi
+
+      # ─────────────────────────────
+      # 5️⃣ Install Repair Tools
+      # ─────────────────────────────
+      - name: Install tools
+        run: |
+          uv pip install \
+            black \
+            isort \
+            ruff \
+            autoflake \
+            pip-audit \
+            bandit \
+            mypy || true
+
+      # ─────────────────────────────
+      # 6️⃣ Auto-fix Code (Aggressive)
+      # ─────────────────────────────
+      - name: Auto-fix Python code
+        run: |
+          uv run autoflake \
+            --remove-all-unused-imports \
+            --remove-unused-variables \
+            --recursive \
+            --in-place .
+
+          uv run isort .
+          uv run black .
+
+          uv run ruff check . \
+            --fix \
+            --unsafe-fixes \
+            --exit-zero
+
+      # ─────────────────────────────
+      # 7️⃣ Static Analysis (non-blocking)
+      # ─────────────────────────────
+      - name: Security & type checks
+        continue-on-error: true
+        run: |
+          uv run bandit -r . || true
+          uv run mypy . || true
+          uv run pip-audit || true
+
+      # ─────────────────────────────
+      # 8️⃣ Lockfile Consistency
+      # ─────────────────────────────
+      - name: Repair lockfile
+        continue-on-error: true
+        run: uv lock || true
+
+      # ─────────────────────────────
+      # 9️⃣ Detect Repo Changes
+      # ─────────────────────────────
+      - name: Detect changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "CHANGED=false" >> $GITHUB_ENV
+          fi
+
+      # ─────────────────────────────
+      # 🔟 Create Auto-Fix PR
+      # ─────────────────────────────
+      - name: Create Pull Request
+        if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: "🛠️ Auto-fix: repair entire repo"
+          title: "✅ Automated Full Repo Repair"
+          body: |
+            🔧 Repo automatically repaired:
+
+            ✔ Code formatting (Black)
+            ✔ Import fixes (isort)
+            ✔ Dead code removal (autoflake)
+            ✔ Bug fixes (Ruff)
+            ✔ Dependency sync & lock repair
+            ✔ Security & audit scan
+
+            ⚠️ Review before merge.
+          labels: auto-fix, repair, ci
+          branch: repo-auto-repair-${{ github.run_id }}
+          delete-branch: true
