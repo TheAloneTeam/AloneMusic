@@ -23,7 +23,6 @@ from AloneMusic.misc import HAPP, SUDOERS, XCB
 from AloneMusic.utils.database import (get_active_chats, remove_active_chat,
                                        remove_active_video_chat)
 from AloneMusic.utils.decorators.language import language
-from AloneMusic.utils.pastebin import AnonyBin
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
