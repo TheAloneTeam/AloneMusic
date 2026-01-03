@@ -22,7 +22,6 @@ from AloneMusic import app
 from AloneMusic.misc import HAPP, SUDOERS, XCB
 from AloneMusic.utils.database import (get_active_chats, remove_active_chat,
                                        remove_active_video_chat)
-from AloneMusic.utils.pastebin import AloneBin
 from AloneMusic.utils.decorators.language import language
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

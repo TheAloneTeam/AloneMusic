@@ -7,9 +7,9 @@
 #
 # All rights reserved.
 
-from pyrogram.enums import ParseMode
-
 import os
+
+from pyrogram.enums import ParseMode
 
 from AloneMusic import app
 from AloneMusic.utils.database import is_on_off
