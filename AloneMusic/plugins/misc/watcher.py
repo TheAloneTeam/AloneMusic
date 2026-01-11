@@ -21,7 +21,7 @@ close = 30
 @app.on_message(filters.video_chat_started, group=welcome)
 @app.on_message(filters.video_chat_ended, group=close)
 async def welcome(_, message: Message):
-    await Alone.stop_stream_force(message.chat.id)
+    await Alone.stop_stream(message.chat.id)
 
 
 @app.on_message(filters.left_chat_member, group=69)
