@@ -5,7 +5,6 @@
 # Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
 #
 # All rights reserved.
-
 import asyncio
 import os
 from datetime import datetime, timedelta
