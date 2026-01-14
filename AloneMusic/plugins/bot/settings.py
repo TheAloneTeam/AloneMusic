@@ -6,17 +6,15 @@
 # Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
 #
 # All rights reserved.
-import random
-import config
-from pyrogram import filters
-from time import time, strftime, gmtime
-from pyrogram import __version__ as pver
+from time import time
+
 from pyrogram import filters
 from pyrogram.enums import ChatType
 from pyrogram.errors import MessageNotModified
 from pyrogram.types import (CallbackQuery, InlineKeyboardButton,
                             InlineKeyboardMarkup, Message)
 
+import config
 from AloneMusic import app
 from AloneMusic.utils.database import (add_nonadmin_chat, get_authuser,
                                        get_authuser_names, get_playmode,
@@ -63,6 +61,7 @@ async def settings_cb(client, CallbackQuery, _):
         reply_markup=InlineKeyboardMarkup(buttons),
     )
 
+
 @app.on_callback_query(filters.regex("^bot_info_data$"))
 async def show_bot_info(c: app, q: CallbackQuery):
     start = time()
@@ -82,6 +81,7 @@ async def show_bot_info(c: app, q: CallbackQuery):
     await q.answer(txt, show_alert=True)
     return
 
+
 @app.on_callback_query(filters.regex("shiv_aarumi") & ~BANNED_USERS)
 @languageCB
 async def support(client, CallbackQuery, _):
@@ -90,23 +90,15 @@ async def support(client, CallbackQuery, _):
         reply_markup=InlineKeyboardMarkup(
             [
                 [
+                    InlineKeyboardButton(text="ᴅᴇᴠs", user_id=config.OWNER_ID),
+                ],
+                [
+                    InlineKeyboardButton(text="sᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT),
+                    InlineKeyboardButton(text="ᴄʜᴀɴɴᴇʟ", url=config.SUPPORT_CHANNEL),
+                ],
+                [
                     InlineKeyboardButton(
-                        text="ᴅᴇᴠs", user_id=config.OWNER_ID
-                    ),   
-               ],
-              [
-              
-                    InlineKeyboardButton(
-                        text="sᴜᴘᴘᴏʀᴛ", url=config.SUPPORT_CHAT
-                    ),
-                    InlineKeyboardButton(
-                        text="ᴄʜᴀɴɴᴇʟ", url=config.SUPPORT_CHANNEL
-                    ),
-              ],
-              [
-
-                    InlineKeyboardButton(
-                        text="ʙᴀᴄᴋ", callback_data=f"settingsback_helper"
+                        text="ʙᴀᴄᴋ", callback_data="settingsback_helper"
                     )
                 ],
             ]
