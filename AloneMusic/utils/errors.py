@@ -17,7 +17,7 @@ from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 from AloneMusic import app
 from config import LOGGER_ID, DEBUG_IGNORE_LOG
 from AloneMusic.utils.exceptions import is_ignored_error
-from AloneMusic.utils.pastebin import Alone
+from AloneMusic.utils.pastebin import AloneBin
 
 
 DEBUG_LOG_FILE = "ignored_errors.log"
@@ -27,7 +27,7 @@ DEBUG_LOG_FILE = "ignored_errors.log"
 
 async def send_large_error(text: str, caption: str, filename: str):
     try:
-        paste_url = await ANNIEBIN(text)
+        paste_url = await AloneBin(text)
         if paste_url:
             await app.send_message(LOGGER_ID, f"{caption}\n\n🔗 Paste: {paste_url}")
             return
