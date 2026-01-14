@@ -19,7 +19,6 @@ from config import LOGGER_ID, DEBUG_IGNORE_LOG
 from AloneMusic.utils.exceptions import is_ignored_error
 from AloneMusic.utils.pastebin import AloneBin
 
-
 DEBUG_LOG_FILE = "ignored_errors.log"
 
 
