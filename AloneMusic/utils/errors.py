@@ -6,23 +6,25 @@
 #
 # All rights reserved.
 
+import os
 import sys
 import traceback
-import os
-from functools import wraps
 from datetime import datetime
+from functools import wraps
+
 import aiofiles
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
 
 from AloneMusic import app
-from config import LOGGER_ID, DEBUG_IGNORE_LOG
 from AloneMusic.utils.exceptions import is_ignored_error
 from AloneMusic.utils.pastebin import AloneBin
+from config import DEBUG_IGNORE_LOG, LOGGER_ID
 
 DEBUG_LOG_FILE = "ignored_errors.log"
 
 
 # ========== Paste Fallback ==========
+
 
 async def send_large_error(text: str, caption: str, filename: str):
     try:
@@ -42,16 +44,18 @@ async def send_large_error(text: str, caption: str, filename: str):
 
 # ========== Formatting & Routing ==========
 
+
 def format_traceback(err, tb, label: str, extras: dict = None) -> str:
     exc_type = type(err).__name__
     parts = [
         f"🚨 <b>{label} Captured</b>",
-        f"📍 <b>Error Type:</b> <code>{exc_type}</code>"
+        f"📍 <b>Error Type:</b> <code>{exc_type}</code>",
     ]
     if extras:
         parts.extend([f"📌 <b>{k}:</b> <code>{v}</code>" for k, v in extras.items()])
     parts.append(f"\n<b>Traceback:</b>\n<pre>{tb}</pre>")
     return "\n".join(parts)
+
 
 async def handle_trace(err, tb, label, filename, extras=None):
     if is_ignored_error(err):
@@ -64,6 +68,7 @@ async def handle_trace(err, tb, label, filename, extras=None):
     else:
         await app.send_message(LOGGER_ID, caption)
 
+
 async def log_ignored_error(err, tb, label, extras=None):
     if not DEBUG_IGNORE_LOG:
         return
@@ -75,11 +80,10 @@ async def log_ignored_error(err, tb, label, extras=None):
         *(f"{key}: {val}" for key, val in (extras or {}).items()),
         "Traceback:",
         tb.strip(),
-        "------------------------------------------\n"
+        "------------------------------------------\n",
     ]
     async with aiofiles.open(DEBUG_LOG_FILE, "a") as log:
         await log.write("\n".join(lines))
-
 
 
 # ========== Decorators ==========
@@ -90,6 +94,7 @@ def capture_err(func):
     Handles errors in command message handlers.
     Logs only unignored errors.
     """
+
     @wraps(func)
     async def wrapper(client, message, *args, **kwargs):
         try:
@@ -101,11 +106,12 @@ def capture_err(func):
             extras = {
                 "User": message.from_user.mention if message.from_user else "N/A",
                 "Command": message.text or message.caption,
-                "Chat ID": message.chat.id
+                "Chat ID": message.chat.id,
             }
             filename = f"error_log_{message.chat.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Error", filename, extras)
             raise err
+
     return wrapper
 
 
@@ -114,6 +120,7 @@ def capture_callback_err(func):
     Handles errors in callback query handlers.
     Logs only unignored errors.
     """
+
     @wraps(func)
     async def wrapper(client, callback_query, *args, **kwargs):
         try:
@@ -121,18 +128,25 @@ def capture_callback_err(func):
         except Exception as err:
             tb = "".join(traceback.format_exception(*sys.exc_info()))
             extras = {
-                "User": callback_query.from_user.mention if callback_query.from_user else "N/A",
-                "Chat ID": callback_query.message.chat.id
+                "User": (
+                    callback_query.from_user.mention
+                    if callback_query.from_user
+                    else "N/A"
+                ),
+                "Chat ID": callback_query.message.chat.id,
             }
             filename = f"cb_error_log_{callback_query.message.chat.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Callback Error", filename, extras)
             raise err
+
     return wrapper
+
 
 def capture_internal_err(func):
     """
     Handles errors in background/internal async bot functions.
     """
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -143,4 +157,5 @@ def capture_internal_err(func):
             filename = f"internal_error_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Internal Error", filename, extras)
             raise err
+
     return wrapper

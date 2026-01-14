@@ -20,6 +20,8 @@ from AloneMusic.utils.inline import close_markup, stream_markup
 from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
 from config import BANNED_USERS
+
+
 async def delete_old_message(chat_id: int):
     try:
         old = db.get(chat_id, [{}])[0].get("mystic")
@@ -216,9 +218,11 @@ async def skip(cli, message: Message, _, chat_id):
             button = stream_markup(_, chat_id)
             await delete_old_message(chat_id)
             run = await message.reply_photo(
-                photo=config.TELEGRAM_AUDIO_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
+                photo=(
+                    config.TELEGRAM_AUDIO_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL
+                ),
                 caption=_["stream_1"].format(
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                 ),
@@ -230,9 +234,11 @@ async def skip(cli, message: Message, _, chat_id):
             button = stream_markup(_, chat_id)
             await delete_old_message(chat_id)
             run = await message.reply_photo(
-                photo=config.SOUNCLOUD_IMG_URL
-                if str(streamtype) == "audio"
-                else config.TELEGRAM_VIDEO_URL,
+                photo=(
+                    config.SOUNCLOUD_IMG_URL
+                    if str(streamtype) == "audio"
+                    else config.TELEGRAM_VIDEO_URL
+                ),
                 caption=_["stream_1"].format(
                     config.SUPPORT_CHAT, title[:23], check[0]["dur"], user
                 ),
@@ -257,4 +263,3 @@ async def skip(cli, message: Message, _, chat_id):
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
-
