@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -30,9 +30,13 @@ jobs:
       - name: Verify uv
         run: uv --version
 
-      # Sync deps
+      # 🔥 NEW: pyproject.toml ke hisab se lock update
+      - name: Generate uv.lock from pyproject.toml
+        run: uv lock
+
+      # Sync deps from lock
       - name: Sync from uv.lock
-        run: uv sync --frozen
+        run: uv sync
 
       # Tools
       - name: Install tools
@@ -50,6 +54,7 @@ jobs:
             --unsafe-fixes \
             --exit-zero
 
+      # 🔍 Lock consistency check
       - name: Detect changes
         run: |
           uv lock --check || true
@@ -59,21 +64,25 @@ jobs:
             echo "CHANGED=false" >> $GITHUB_ENV
           fi
 
+      # Security scan
       - name: Dependency audit
         continue-on-error: true
         run: uv run pip-audit
 
+      # Auto PR
       - name: Create Pull Request
         if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
         uses: peter-evans/create-pull-request@v8
         with:
-          commit-message: "Auto update: full repo auto-fix"
+          commit-message: "Auto update: pyproject sync + full repo auto-fix"
           title: "✅ Automated repo auto-fix"
           body: |
-            ✔ Black formatting
-            ✔ Import sorting (isort)
-            ✔ Ruff auto-fix
-            ✔ uv.lock consistency
+            ✔ pyproject.toml sync  
+            ✔ uv.lock regenerated  
+            ✔ Black formatting  
+            ✔ Import sorting (isort)  
+            ✔ Ruff auto-fix  
+            ✔ Security audit  
           labels: auto-fix, uv, ci
           branch: repo-auto-check-${{ github.run_id }}
           delete-branch: true
