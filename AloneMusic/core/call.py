@@ -9,33 +9,31 @@ import asyncio
 import os
 from datetime import datetime, timedelta
 from typing import Union
+
 from ntgcalls import ConnectionNotFound, TelegramServerError
 from pyrogram import Client
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pytgcalls import PyTgCalls, exceptions, types
 from pytgcalls.pytgcalls_session import PyTgCallsSession
+
 import config
 from AloneMusic import LOGGER, YouTube, app
 from AloneMusic.misc import db
-from AloneMusic.utils.database import (
-    add_active_chat,
-    add_active_video_chat,
-    get_lang,
-    get_loop,
-    group_assistant,
-    is_autoend,
-    music_on,
-    remove_active_chat,
-    remove_active_video_chat,
-    set_loop,
-)
+from AloneMusic.utils.database import (add_active_chat, add_active_video_chat,
+                                       get_lang, get_loop, group_assistant,
+                                       is_autoend, music_on,
+                                       remove_active_chat,
+                                       remove_active_video_chat, set_loop)
+from AloneMusic.utils.errors import capture_internal_err
 from AloneMusic.utils.exceptions import AssistantErr
-from AloneMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
+from AloneMusic.utils.formatters import (check_duration, seconds_to_min,
+                                         speed_converter)
 from AloneMusic.utils.inline.play import stream_markup
 from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
 from strings import get_string
-from AloneMusic.utils.errors import capture_internal_err
+
+
 async def delete_old_message(chat_id: int):
     try:
         old = db.get(chat_id, [{}])[0].get("mystic")
@@ -43,13 +41,17 @@ async def delete_old_message(chat_id: int):
             await old.delete()
     except:
         pass
+
+
 autoend = {}
 counter = {}
+
 
 async def _clear_(chat_id: int):
     db[chat_id] = []
     await remove_active_video_chat(chat_id)
     await remove_active_chat(chat_id)
+
 
 class Call(PyTgCalls):
     def __init__(self):
@@ -113,6 +115,7 @@ class Call(PyTgCalls):
             ),
             ffmpeg_parameters=ffmpeg,
         )
+
     @capture_internal_err
     async def _play_on_assistant(
         self,
@@ -134,17 +137,19 @@ class Call(PyTgCalls):
             raise
         except Exception:
             raise
-            
+
     @capture_internal_err
     async def pause_stream(self, chat_id: int):
         await delete_old_message(chat_id)
         assistant = await group_assistant(self, chat_id)
         await assistant.pause(chat_id)
+
     @capture_internal_err
     async def resume_stream(self, chat_id: int):
         await delete_old_message(chat_id)
         assistant = await group_assistant(self, chat_id)
         await assistant.resume(chat_id)
+
     @capture_internal_err
     async def stop_stream(self, chat_id: int):
         await delete_old_message(chat_id)
@@ -154,6 +159,7 @@ class Call(PyTgCalls):
             await assistant.leave_call(chat_id, close=False)
         except Exception:
             pass
+
     @capture_internal_err
     async def stop_stream_force(self, chat_id: int):
         for string, client in [
@@ -173,6 +179,7 @@ class Call(PyTgCalls):
             await _clear_(chat_id)
         except Exception:
             pass
+
     @capture_internal_err
     async def speedup_stream(self, chat_id: int, file_path, speed, playing):
         assistant = await group_assistant(self, chat_id)
@@ -246,6 +253,7 @@ class Call(PyTgCalls):
             await assistant.leave_call(chat_id, close=False)
         except Exception:
             pass
+
     @capture_internal_err
     async def skip_stream(
         self,
@@ -257,6 +265,7 @@ class Call(PyTgCalls):
         assistant = await group_assistant(self, chat_id)
         stream = self._build_stream(link, video=bool(video))
         await self._play_on_assistant(assistant, chat_id, stream)
+
     @capture_internal_err
     async def seek_stream(self, chat_id, file_path, to_seek, duration, mode):
         assistant = await group_assistant(self, chat_id)
@@ -268,6 +277,7 @@ class Call(PyTgCalls):
             ffmpeg=ffmpeg,
         )
         await self._play_on_assistant(assistant, chat_id, stream)
+
     @capture_internal_err
     async def stream_call(self, link):
         assistant = await group_assistant(self, config.LOGGER_ID)
@@ -278,6 +288,7 @@ class Call(PyTgCalls):
             await assistant.leave_call(config.LOGGER_ID, close=False)
         except Exception:
             pass
+
     @capture_internal_err
     async def join_call(
         self,
@@ -310,6 +321,7 @@ class Call(PyTgCalls):
             users = len(await assistant.get_participants(chat_id))
             if users == 1:
                 autoend[chat_id] = datetime.now() + timedelta(minutes=1)
+
     @capture_internal_err
     async def change_stream(self, client: PyTgCalls, chat_id: int):
         await delete_old_message(chat_id)
@@ -330,18 +342,19 @@ class Call(PyTgCalls):
                         [
                             [
                                 InlineKeyboardButton(
-                                    "✙ ʌᴅᴅ ϻє вᴧʙʏ ✙", url=f"https://t.me/{app.username}?startgroup=true"
+                                    "✙ ʌᴅᴅ ϻє вᴧʙʏ ✙",
+                                    url=f"https://t.me/{app.username}?startgroup=true",
                                 ),
                                 InlineKeyboardButton(
                                     "⋞ ᴄʟᴏsє ⋟", callback_data="close_message"
-                                )
+                                ),
                             ]
                         ]
                     )
                     await app.send_message(
                         chat_id,
                         "**🎵 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. 𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!**",
-                        reply_markup=buttons
+                        reply_markup=buttons,
                     )
                 except:
                     pass
@@ -354,18 +367,19 @@ class Call(PyTgCalls):
                         [
                             [
                                 InlineKeyboardButton(
-                                    "✙ ʌᴅᴅ ϻє вᴧʙʏ ✙", url=f"https://t.me/{app.username}?startgroup=true"
+                                    "✙ ʌᴅᴅ ϻє вᴧʙʏ ✙",
+                                    url=f"https://t.me/{app.username}?startgroup=true",
                                 ),
                                 InlineKeyboardButton(
                                     "⋞ ᴄʟᴏsє ⋟", callback_data="close_message"
-                                )
+                                ),
                             ]
                         ]
                     )
                     await app.send_message(
                         chat_id,
                         "🎵 𝐓ʜᴇ 𝐐ᴜᴇᴜᴇ 𝐇ᴀs 𝐅ɪɴɪsʜᴇᴅ. 𝐔sᴇ /play 𝐓ᴏ 𝐀ᴅᴅ 𝐌ᴏʀᴇ 𝐒ᴏɴɢs!!",
-                        reply_markup=buttons
+                        reply_markup=buttons,
                     )
                 except:
                     pass
@@ -531,6 +545,7 @@ class Call(PyTgCalls):
                 )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
+
     @capture_internal_err
     async def ping(self):
         pings = []
@@ -545,6 +560,7 @@ class Call(PyTgCalls):
         if config.STRING5:
             pings.append(self.five.ping)
         return str(round(sum(pings) / len(pings), 3)) if pings else "0"
+
     @capture_internal_err
     async def start(self):
         LOGGER(__name__).info("Starting PyTgCalls Client...\n")
@@ -558,6 +574,7 @@ class Call(PyTgCalls):
             await self.four.start()
         if config.STRING5:
             await self.five.start()
+
     @capture_internal_err
     async def decorators(self):
         for string, client in [
@@ -569,6 +586,7 @@ class Call(PyTgCalls):
         ]:
             if not string:
                 continue
+
             @client.on_update()
             async def _update_handler(_, update: types.Update, _client=client):
                 if isinstance(update, types.StreamEnded):
@@ -581,5 +599,6 @@ class Call(PyTgCalls):
                         types.ChatUpdate.Status.CLOSED_VOICE_CHAT,
                     ]:
                         await self.stop_stream(update.chat_id)
+
 
 Alone = Call()
