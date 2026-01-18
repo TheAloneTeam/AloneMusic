@@ -74,7 +74,7 @@ jobs:
         if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
         uses: peter-evans/create-pull-request@v8
         with:
-          commit-message: "Auto update: pyproject sync + full repo auto-fix"
+          commit-message: "𝚻հҽ 𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ + #⟶̽ जय श्री ༢།म >𝟑🙏🚩"
           title: "✅ Automated repo auto-fix"
           body: |
             ✔ pyproject.toml sync  
