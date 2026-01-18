@@ -48,8 +48,8 @@ Requires-Dist: youtube-search>=2.1.2
 Requires-Dist: youtube-search-python>=1.6.6
 Requires-Dist: py-yt-search==0.5.7
 Requires-Dist: spotipy>=2.24.0
-Requires-Dist: openai>=1.40.0
 Requires-Dist: prettytable>=3.12.0
+Requires-Dist: openai>=1.40.0
 Dynamic: license-file
 
 # 🎵 AloneMusic
