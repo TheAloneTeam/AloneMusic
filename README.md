@@ -29,7 +29,7 @@ It’s designed to be lightweight, fast, and customizable.
 
 📂 **GitHub Issues:** [Report a Problem](https://github.com/TheAloneTeam/AloneMusic/issues/new)
 
-🆘 **Any Problem? DM:** [𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ](https://t.me/codeshivu)
+🆘 Any Problem? DM: [𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ](https://t.me/codeshivu)
 ---
 
 ## 📜 License
