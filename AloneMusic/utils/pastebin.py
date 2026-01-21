@@ -29,4 +29,5 @@ async def AloneBin(text):
     link = BASE + resp["message"]
     return link
 
+
 AloneBin = AloneBin
