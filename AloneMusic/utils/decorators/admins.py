@@ -155,7 +155,9 @@ def AdminActual(mystic):
         # Admin permission check
         if message.from_user.id not in SUDOERS:
             try:
-                chat_member = await app.get_chat_member(message.chat.id, message.from_user.id)
+                chat_member = await app.get_chat_member(
+                    message.chat.id, message.from_user.id
+                )
                 member = chat_member.privileges
             except:
                 return await message.reply(_["general_4"])
