@@ -26,6 +26,9 @@ It’s designed to be lightweight, fast, and customizable.
 ## ❤️ Support
 
 💬 **Telegram:** [AloneMusic](https://t.me/TheTeamHacker)  
+
+🆘 **Any Problem? DM:** [𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ](https://t.me/codeshivu)
+
 📂 **GitHub Issues:** [Report a Problem](https://github.com/TheAloneTeam/AloneMusic/issues/new)
 
 ---
@@ -51,10 +54,8 @@ Click this button to deploy instantly on **Heroku**:
 
 - **Install uv for Efficient Dependency Management**:
   ```bash
-    python -m pip install --upgrade pip
-  ```
-  ```bash
   pip install uv
+  ```
 - **Clone the Repository:**  
   ```bash
   git clone https://github.com/TheAloneTeam/AloneMusic cd AloneMusic
