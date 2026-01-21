@@ -137,6 +137,8 @@ def AdminActual(mystic):
             _ = get_string(language)
         except:
             _ = get_string("en")
+
+        # Anonymous admin block
         if message.sender_chat:
             upl = InlineKeyboardMarkup(
                 [
@@ -149,15 +151,21 @@ def AdminActual(mystic):
                 ]
             )
             return await message.reply_text(_["general_3"], reply_markup=upl)
+
+        # Admin permission check
         if message.from_user.id not in SUDOERS:
             try:
-                member = (
-                    await app.get_chat_member(message.chat.id, message.from_user.id)
-                ).privileges
+                chat_member = await app.get_chat_member(message.chat.id, message.from_user.id)
+                member = chat_member.privileges
             except:
-                return
+                return await message.reply(_["general_4"])
+
+            if not member:
+                return await message.reply(_["general_4"])
+
             if not member.can_manage_video_chats:
                 return await message.reply(_["general_4"])
+
         return await mystic(client, message, _)
 
     return wrapper
