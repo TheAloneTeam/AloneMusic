@@ -30,4 +30,4 @@ async def AloneBin(text):
     return link
 
 
-AnonyBin = AloneBin
+AloneBin = AloneBin
