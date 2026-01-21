@@ -26,7 +26,9 @@ It’s designed to be lightweight, fast, and customizable.
 ## ❤️ Support
 
 💬 **Telegram:** [AloneMusic](https://t.me/TheTeamHacker)  
+
 📂 **GitHub Issues:** [Report a Problem](https://github.com/TheAloneTeam/AloneMusic/issues/new)
+
 🆘 **Any Problem? DM**:[𝚨𝛂ѕͱ꧊𝐢͢к𓂃💗](https://t.me/codeshivu)
 ---
 
