@@ -51,10 +51,8 @@ Click this button to deploy instantly on **Heroku**:
 
 - **Install uv for Efficient Dependency Management**:
   ```bash
-    python -m pip install --upgrade pip
-  ```
-  ```bash
   pip install uv
+  ```
 - **Clone the Repository:**  
   ```bash
   git clone https://github.com/TheAloneTeam/AloneMusic cd AloneMusic
