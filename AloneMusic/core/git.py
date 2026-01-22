@@ -7,8 +7,6 @@
 # All rights reserved.
 
 import asyncio
-import shlex
-from typing import Tuple
 
 from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError
@@ -17,8 +15,9 @@ import config
 
 from ..logging import LOGGER
 
-
 loop = asyncio.get_event_loop_policy().get_event_loop()
+
+
 def install_req() -> tuple[str, str, int, int]:
     async def install_requirements():
         process = await asyncio.create_subprocess_shell(

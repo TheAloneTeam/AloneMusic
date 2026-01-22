@@ -19,11 +19,8 @@ from pyrogram import filters
 import config
 from AloneMusic import app
 from AloneMusic.misc import HAPP, SUDOERS, XCB
-from AloneMusic.utils.database import (
-    get_active_chats,
-    remove_active_chat,
-    remove_active_video_chat,
-)
+from AloneMusic.utils.database import (get_active_chats, remove_active_chat,
+                                       remove_active_video_chat)
 from AloneMusic.utils.decorators.language import language
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -162,8 +159,5 @@ async def restart_(_, message):
         if os.path.exists(folder):
             shutil.rmtree(folder, ignore_errors=True)
 
-    await response.edit(
-        "» ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ, "
-        "ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ғᴇᴡ sᴇᴄᴏɴᴅs..."
-    )
+    await response.edit("» ʀᴇsᴛᴀʀᴛ ᴘʀᴏᴄᴇss sᴛᴀʀᴛᴇᴅ, " "ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ ғᴏʀ ғᴇᴡ sᴇᴄᴏɴᴅs...")
     os.system(f"kill -9 {os.getpid()} && python3 -m AloneMusic")
