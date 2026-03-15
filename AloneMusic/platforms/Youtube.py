@@ -173,7 +173,7 @@ async def download_video(link: str) -> str:
         return None
 
 
-async def shell_cmd(cmd):
+"""async def shell_cmd(cmd):
     proc = await asyncio.create_subprocess_shell(
         cmd,
         stdout=asyncio.subprocess.PIPE,
@@ -185,7 +185,7 @@ async def shell_cmd(cmd):
             return out.decode("utf-8")
         else:
             return errorz.decode("utf-8")
-    return out.decode("utf-8")
+    return out.decode("utf-8")"""
 
 
 class YouTubeAPI:
