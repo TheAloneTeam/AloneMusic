@@ -39,7 +39,7 @@ EFFECT_ID = [
 @LanguageStart
 async def start_pm(client, message: Message, _):
     await add_served_user(message.from_user.id)
-    await message.react("🍓")
+    await message.react("🍓", big=True)
     if len(message.text.split()) > 1:
         name = message.text.split(None, 1)[1]
         if name[0:4] == "help":
