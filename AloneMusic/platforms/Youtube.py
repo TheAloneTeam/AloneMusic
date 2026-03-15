@@ -292,13 +292,21 @@ class YouTubeAPI:
                         duration_sec = int(time_to_seconds(duration))
                     else:
                         duration_sec = 0
-                    videos.append({
-                        "vidid": video["id"],
-                        "title": video.get("title", "Unknown"),
-                        "duration_min": duration,
-                        "duration_sec": duration_sec,
-                        "thumbnail": video.get("thumbnails", [{}])[0].get("url", "").split("?")[0] if video.get("thumbnails") else "",
-                    })
+                    videos.append(
+                        {
+                            "vidid": video["id"],
+                            "title": video.get("title", "Unknown"),
+                            "duration_min": duration,
+                            "duration_sec": duration_sec,
+                            "thumbnail": (
+                                video.get("thumbnails", [{}])[0]
+                                .get("url", "")
+                                .split("?")[0]
+                                if video.get("thumbnails")
+                                else ""
+                            ),
+                        }
+                    )
                 except:
                     continue
             return videos
