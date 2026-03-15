@@ -277,14 +277,32 @@ class YouTubeAPI:
             link = self.listbase + link
         if "&" in link:
             link = link.split("&")[0]
-        playlist = await shell_cmd(
-            f"yt-dlp -i --get-id --flat-playlist --playlist-end {limit} --skip-download {link}"
-        )
-        try:
-            result = [key for key in playlist.split("\n") if key]
-        except:
-            result = []
-        return result
+        if "?si=" in link:
+            link = link.split("?si=")[0]
+        elif "&si=" in link:
+            link = link.split("&si=")[0]
+
+        playlist = await Playlist.get(link)
+        if playlist:
+            videos = []
+            for video in playlist["videos"][:limit]:
+                try:
+                    duration = video.get("duration")
+                    if duration:
+                        duration_sec = int(time_to_seconds(duration))
+                    else:
+                        duration_sec = 0
+                    videos.append({
+                        "vidid": video["id"],
+                        "title": video.get("title", "Unknown"),
+                        "duration_min": duration,
+                        "duration_sec": duration_sec,
+                        "thumbnail": video.get("thumbnails", [{}])[0].get("url", "").split("?")[0] if video.get("thumbnails") else "",
+                    })
+                except:
+                    continue
+            return videos
+        return None
 
     async def track(self, link: str, videoid: Union[bool, str] = None):
         if videoid:
