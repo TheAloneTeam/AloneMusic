@@ -1,9 +1,10 @@
-name: 𝚻հҽ 𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ
+name: The Alone Repo CI
 
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,31 +15,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.10.x"
 
-      # ✅ Install uv (CI-safe)
       - name: Install uv
         run: |
           python -m pip install --upgrade pip
           python -m pip install uv
 
-      # ✅ Verify uv (debug safety)
       - name: Verify uv
         run: uv --version
 
-      # 🔥 NEW: pyproject.toml ke hisab se lock update
-      - name: Generate uv.lock from pyproject.toml
+      - name: Generate uv.lock
         run: uv lock
 
-      # Sync deps from lock
-      - name: Sync from uv.lock
+      - name: Sync dependencies
         run: uv sync
 
-      # Tools
       - name: Install tools
         run: uv pip install black isort ruff pip-audit
 
@@ -47,14 +45,13 @@ jobs:
           uv run black .
           uv run isort .
 
-      - name: Ruff auto-fix
+      - name: Ruff auto fix
         run: |
           uv run ruff check . \
-            --fix \
-            --unsafe-fixes \
-            --exit-zero
+          --fix \
+          --unsafe-fixes \
+          --exit-zero
 
-      # 🔍 Lock consistency check
       - name: Detect changes
         run: |
           uv lock --check || true
@@ -64,25 +61,21 @@ jobs:
             echo "CHANGED=false" >> $GITHUB_ENV
           fi
 
-      # Security scan
       - name: Dependency audit
         continue-on-error: true
         run: uv run pip-audit
 
-      # Auto PR
       - name: Create Pull Request
         if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: "𝚻հҽ 𝚨Łꪮⲛ𝛆 🚩𝗧ε᧘‌ᴍ + #⟶̽ जय श्री ༢།म >𝟑🙏🚩"
-          title: "✅ Automated repo auto-fix"
+          commit-message: "auto repo fix"
+          title: "Automated repo auto-fix"
           body: |
-            ✔ pyproject.toml sync  
-            ✔ uv.lock regenerated  
-            ✔ Black formatting  
-            ✔ Import sorting (isort)  
-            ✔ Ruff auto-fix  
-            ✔ Security audit  
-          labels: auto-fix, uv, ci
+            Auto dependency sync
+            uv.lock regenerated
+            Formatting applied
+            Security audit done
+          labels: auto-fix
           branch: repo-auto-check-${{ github.run_id }}
           delete-branch: true
