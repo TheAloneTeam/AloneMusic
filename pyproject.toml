@@ -1,12 +1,13 @@
 [build-system]
-requires = ["setuptools>=70.0.0", "wheel"]
+requires = ["setuptools>=70.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "AloneMusic"
 version = "0.1.0"
-description = "Advanced Telegram Music Bot by TheAloneTeam — PyroFork + ntgcalls + YouTube + Spotify"
+description = "🎵 Advanced Telegram Music Bot by TheAloneTeam — PyroFork + ntgcalls + YouTube + Spotify"
 readme = "README.md"
+
 requires-python = ">=3.10,<3.13"
 
 license = { text = "MIT" }
@@ -15,16 +16,7 @@ authors = [
   { name = "TheAloneTeam", email = "riteshcoderx@gmail.com" }
 ]
 
-keywords = [
-  "telegram",
-  "music",
-  "bot",
-  "pyrogram",
-  "pyrofork",
-  "pytgcalls",
-  "youtube",
-  "spotify"
-]
+keywords = ["telegram", "music", "bot", "pyrogram", "pyrofork", "pytgcalls", "youtube", "spotify"]
 
 classifiers = [
   "Environment :: Console",
@@ -36,7 +28,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Internet",
-  "Topic :: Utilities"
+  "Topic :: Utilities",
 ]
 
 dependencies = [
@@ -50,35 +42,30 @@ dependencies = [
   "httpx>=0.27.0",
   "humanize>=4.9.0",
   "requests>=2.32.3",
-  "python-dotenv>=1.0.1",
+  "python-dotenv==1.2.2",
   "pyyaml>=6.0.1",
   "unidecode>=1.3.8",
   "tgcrypto>=1.2.5",
   "pyrofork>=2.3.45",
   "ffmpeg-python>=0.2.0",
-  "py-tgcalls>=2.2.11",
-  "ntgcalls>=2.1.0",
+  "py-tgcalls==2.2.11",
+  "ntgcalls==2.1.0",
   "motor>=3.4.0",
   "psutil>=5.9.8",
   "heroku3>=5.2.1",
-  "Pillow>=10.3.0",
+  "Pillow==12.1.1",
   "speedtest-cli>=2.1.3",
-  "yt-dlp>=2026.3.13",
+  "yt-dlp==2026.3.13",
   "youtube-search>=2.1.2",
   "youtube-search-python>=1.6.6",
-  "py-yt-search>=0.5.7",
-  "spotipy>=2.26.0",
+  "py-yt-search==0.5.7",
+  "spotipy==2.26.0",
   "prettytable>=3.12.0",
   "openai>=1.40.0"
 ]
 
 [tool.setuptools.packages.find]
-include = [
-  "AloneMusic",
-  "core",
-  "config",
-  "strings"
-]
+include = ["AloneMusic", "core", "config", "strings"]
 
 [project.urls]
 Repository = "https://github.com/TheAloneTeam/AloneMusic"
