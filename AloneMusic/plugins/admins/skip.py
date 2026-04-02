@@ -21,6 +21,7 @@ from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
 from config import BANNED_USERS
 
+
 async def delete_old_message(chat_id: int):
     try:
         old = db.get(chat_id, [{}])[0].get("mystic")
