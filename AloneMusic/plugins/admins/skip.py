@@ -130,7 +130,7 @@ async def skip(cli, message: Message, _, chat_id):
         except:
             image = None
         try:
-            await Aarumi.skip_stream(chat_id, link, video=status, image=image)
+            await Alone.skip_stream(chat_id, link, video=status, image=image)
         except:
             return await message.reply_text(_["call_6"])
         button = stream_markup(_, chat_id)
