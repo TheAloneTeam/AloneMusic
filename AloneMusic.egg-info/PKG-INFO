@@ -39,7 +39,7 @@ Requires-Dist: pyrofork>=2.3.45
 Requires-Dist: ffmpeg-python>=0.2.0
 Requires-Dist: py-tgcalls==2.2.11
 Requires-Dist: ntgcalls==2.1.0
-Requires-Dist: motor>=3.4.0
+Requires-Dist: motor>=3.7.1
 Requires-Dist: psutil>=5.9.8
 Requires-Dist: heroku3>=5.2.1
 Requires-Dist: Pillow==12.2.0
