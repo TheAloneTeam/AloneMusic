@@ -143,18 +143,18 @@ dependencies = [
 requires-dist = [
     { name = "aiofiles", specifier = ">=23.2.1" },
     { name = "aiohttp", specifier = ">=3.9.5" },
-    { name = "apscheduler", specifier = ">=3.10.4" },
+    { name = "apscheduler", specifier = ">=3.11.2" },
     { name = "beautifulsoup4", specifier = ">=4.12.3" },
-    { name = "dnspython", specifier = ">=2.6.1" },
+    { name = "dnspython", specifier = ">=2.8.0" },
     { name = "ffmpeg-python", specifier = ">=0.2.0" },
     { name = "gitpython", specifier = ">=3.1.43" },
-    { name = "hachoir", specifier = ">=3.2.0" },
+    { name = "hachoir", specifier = ">=3.3.0" },
     { name = "heroku3", specifier = ">=5.2.1" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "humanize", specifier = ">=4.9.0" },
-    { name = "motor", specifier = ">=3.4.0" },
+    { name = "motor", specifier = ">=3.7.1" },
     { name = "ntgcalls", specifier = "==2.1.0" },
-    { name = "openai", specifier = ">=1.40.0" },
+    { name = "openai", specifier = ">=2.31.0" },
     { name = "pillow", specifier = "==12.2.0" },
     { name = "prettytable", specifier = ">=3.12.0" },
     { name = "psutil", specifier = ">=5.9.8" },
@@ -168,7 +168,7 @@ requires-dist = [
     { name = "spotipy", specifier = "==2.26.0" },
     { name = "tgcrypto", specifier = ">=1.2.5" },
     { name = "unidecode", specifier = ">=1.3.8" },
-    { name = "youtube-search", specifier = ">=2.1.2" },
+    { name = "youtube-search", specifier = ">=2.2.0" },
     { name = "youtube-search-python", specifier = ">=1.6.6" },
     { name = "yt-dlp", specifier = "==2026.3.17" },
 ]
@@ -689,7 +689,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "2.15.0"
+version = "2.31.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -701,9 +701,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/f4/4690ecb5d70023ce6bfcfeabfe717020f654bde59a775058ec6ac4692463/openai-2.15.0.tar.gz", hash = "sha256:42eb8cbb407d84770633f31bf727d4ffb4138711c670565a41663d9439174fba", size = 627383, upload-time = "2026-01-09T22:10:08.603Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/94/fe/64b3d035780b3188f86c4f6f1bc202e7bb74757ef028802112273b9dcacf/openai-2.31.0.tar.gz", hash = "sha256:43ca59a88fc973ad1848d86b98d7fac207e265ebbd1828b5e4bdfc85f79427a5", size = 684772, upload-time = "2026-04-08T21:01:41.797Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b5/df/c306f7375d42bafb379934c2df4c2fa3964656c8c782bac75ee10c102818/openai-2.15.0-py3-none-any.whl", hash = "sha256:6ae23b932cd7230f7244e52954daa6602716d6b9bf235401a107af731baea6c3", size = 1067879, upload-time = "2026-01-09T22:10:06.446Z" },
+    { url = "https://files.pythonhosted.org/packages/66/bc/a8f7c3aa03452fedbb9af8be83e959adba96a6b4a35e416faffcc959c568/openai-2.31.0-py3-none-any.whl", hash = "sha256:44e1344d87e56a493d649b17e2fac519d1368cbb0745f59f1957c4c26de50a0a", size = 1153479, upload-time = "2026-04-08T21:01:39.217Z" },
 ]
 
 [[package]]
