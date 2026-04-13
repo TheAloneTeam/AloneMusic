@@ -33,7 +33,7 @@ classifiers = [
 
 dependencies = [
   "aiofiles>=25.1.0",
-  "aiohttp>=3.9.5",
+  "aiohttp>=3.13.5",
   "apscheduler>=3.11.2",
   "beautifulsoup4>=4.12.3",
   "dnspython>=2.8.0",
