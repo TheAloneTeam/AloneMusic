@@ -159,7 +159,7 @@ requires-dist = [
     { name = "prettytable", specifier = ">=3.12.0" },
     { name = "psutil", specifier = ">=5.9.8" },
     { name = "py-tgcalls", specifier = "==2.2.11" },
-    { name = "py-yt-search", specifier = "==0.6.1" },
+    { name = "py-yt-search", specifier = "==0.6.2" },
     { name = "pyrofork", specifier = ">=2.3.45" },
     { name = "python-dotenv", specifier = "==1.2.2" },
     { name = "pyyaml", specifier = ">=6.0.1" },
@@ -860,14 +860,14 @@ wheels = [
 
 [[package]]
 name = "py-yt-search"
-version = "0.6.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/14/f7/05111726272b66a1f31bd4d2c6198ec18c32e60c6c7d658b27cdbd5d39e5/py_yt_search-0.6.1.tar.gz", hash = "sha256:aed3a2d85e88b68730ca542a75aac2e98f53a4745ced8398340d1382aca46a7d", size = 38985, upload-time = "2026-03-22T14:44:05.635Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/fa/b40bc5f93f59a63023dac96b9db689288695380f1a44b08a5219431e7c8c/py_yt_search-0.6.2.tar.gz", hash = "sha256:2b8d8120e505ff3de4ff1d701f57a3188c75c556905b079e8df6c4861e9d878c", size = 39166, upload-time = "2026-04-11T11:53:15.895Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/89/93ac369be6373e50cfa160c180ea86f87883ea818d3d29a534b2e4736ac5/py_yt_search-0.6.1-py3-none-any.whl", hash = "sha256:0d57dd55944c30f4735803b583ccdc26eb03446f726f68d1b6db31cfdc20ede6", size = 46309, upload-time = "2026-03-22T14:44:04.133Z" },
+    { url = "https://files.pythonhosted.org/packages/11/be/f552dbcf74ddfade41d3f80fc6b863f2c90d8488ef2a17b1719be9e24a06/py_yt_search-0.6.2-py3-none-any.whl", hash = "sha256:d062412d83820c296731e72aaa6efad5c714b6fbb53095cf88d75116ccf158c6", size = 46485, upload-time = "2026-04-11T11:53:14.233Z" },
 ]
 
 [[package]]
