@@ -16,26 +16,36 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10.x"
+          python-version: "3.10.13"
+
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-
 
       - name: Install uv
         run: |
           python -m pip install --upgrade pip
-          python -m pip install uv
+          pip install uv
 
       - name: Verify uv
         run: uv --version
 
       - name: Generate uv.lock
-        run: uv lock
+        run: |
+          rm -f uv.lock
+          uv lock --prerelease=allow
 
       - name: Sync dependencies
-        run: uv sync
+        run: uv sync --frozen
 
       - name: Install tools
         run: uv pip install black isort ruff pip-audit
@@ -47,14 +57,11 @@ jobs:
 
       - name: Ruff auto fix
         run: |
-          uv run ruff check . \
-          --fix \
-          --unsafe-fixes \
-          --exit-zero
+          uv run ruff check . --fix --unsafe-fixes --exit-zero
 
       - name: Detect changes
         run: |
-          uv lock --check || true
+          uv lock --check --prerelease=allow || true
           if [ -n "$(git status --porcelain)" ]; then
             echo "CHANGED=true" >> $GITHUB_ENV
           else
@@ -67,7 +74,7 @@ jobs:
 
       - name: Create Pull Request
         if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@v5
         with:
           commit-message: "auto repo fix"
           title: "Automated repo auto-fix"
