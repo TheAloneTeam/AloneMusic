@@ -10,10 +10,10 @@
 import asyncio
 import os
 import re
-from typing import Union
-import httpx
 import urllib.parse
+from typing import Union
 
+import httpx
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
@@ -22,6 +22,7 @@ from AloneMusic import LOGGER
 # Use environment variables for configuration
 API_URL = os.getenv("API_URL", "https://apiyt-ochre.vercel.app").rstrip("/")
 API_KEY = os.getenv("API_KEY", "ritesh_free_7f0fa88dbafff5551e0e791b")
+
 
 async def download_assistant(query: str, dl_type: str) -> str:
     """Helper to get stream URL from the API"""
@@ -34,8 +35,10 @@ async def download_assistant(query: str, dl_type: str) -> str:
         url = f"{API_URL}/downloads/stream?query={safe_query}&dl_type={dl_type}"
     return url
 
+
 async def download_song(link: str) -> str:
     return await download_assistant(link, "audio")
+
 
 async def download_video(link: str) -> str:
     return await download_assistant(link, "video")
@@ -99,7 +102,9 @@ class YouTubeAPI:
             if response.status_code == 200:
                 return response.json()
             else:
-                LOGGER(__name__).error(f"API Error ({response.status_code}): {response.text}")
+                LOGGER(__name__).error(
+                    f"API Error ({response.status_code}): {response.text}"
+                )
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching details from API: {e}")
         return None
@@ -109,7 +114,13 @@ class YouTubeAPI:
             link = self.base + link
         data = await self._fetch_details(link)
         if data:
-            return data["title"], data["duration_min"], data["duration_sec"], data["thumbnail"], data["vidid"]
+            return (
+                data["title"],
+                data["duration_min"],
+                data["duration_sec"],
+                data["thumbnail"],
+                data["vidid"],
+            )
         return None, None, 0, None, None
 
     async def title(self, link: str, videoid: Union[bool, str] = None):
@@ -157,7 +168,9 @@ class YouTubeAPI:
                 data = response.json()
                 return data.get("videos")
             else:
-                LOGGER(__name__).error(f"API Playlist Error ({response.status_code}): {response.text}")
+                LOGGER(__name__).error(
+                    f"API Playlist Error ({response.status_code}): {response.text}"
+                )
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching playlist from API: {e}")
         return None
@@ -177,7 +190,9 @@ class YouTubeAPI:
             return track_details, data["vidid"]
         return None, None
 
-    async def slider(self, link: str, query_type: int, videoid: Union[bool, str] = None):
+    async def slider(
+        self, link: str, query_type: int, videoid: Union[bool, str] = None
+    ):
         if videoid:
             link = self.base + link
         link = self._clean_link(link)
@@ -192,9 +207,16 @@ class YouTubeAPI:
                 result = result_data.get("result")
                 if result and len(result) > query_type:
                     res = result[query_type]
-                    return res["title"], res["duration"], res["thumbnails"][0]["url"].split("?")[0], res["id"]
+                    return (
+                        res["title"],
+                        res["duration"],
+                        res["thumbnails"][0]["url"].split("?")[0],
+                        res["id"],
+                    )
             else:
-                 LOGGER(__name__).error(f"API Search Error ({response.status_code}): {response.text}")
+                LOGGER(__name__).error(
+                    f"API Search Error ({response.status_code}): {response.text}"
+                )
         except Exception as e:
             LOGGER(__name__).error(f"Error in slider/search from API: {e}")
         return None, None, None, None
@@ -227,7 +249,9 @@ class YouTubeAPI:
             # Using the masked /downloads/youtube.com endpoint helps the player identify it
             # as a YouTube source and enables speed control/seeking via Range requests
             if API_KEY:
-                stream_url = f"{API_URL}/downloads/{API_KEY}/youtube.com/{vidid_extracted}.{ext}"
+                stream_url = (
+                    f"{API_URL}/downloads/{API_KEY}/youtube.com/{vidid_extracted}.{ext}"
+                )
             else:
                 stream_url = f"{API_URL}/downloads/youtube.com/{vidid_extracted}.{ext}"
 
@@ -271,7 +295,9 @@ class YouTubeAPI:
                     f["yturl"] = link
                 return formats, link
             else:
-                 LOGGER(__name__).error(f"API Formats Error ({response.status_code}): {response.text}")
+                LOGGER(__name__).error(
+                    f"API Formats Error ({response.status_code}): {response.text}"
+                )
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching formats from API: {e}")
         return [], link
