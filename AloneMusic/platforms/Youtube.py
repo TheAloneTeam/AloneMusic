@@ -21,7 +21,7 @@ from AloneMusic import LOGGER
 
 # Use environment variables for configuration
 API_URL = os.getenv("API_URL", "https://apiyt-ochre.vercel.app").rstrip("/")
-API_KEY = os.getenv("API_KEY", "ritesh_free_7f0fa88dbafff5551e0e791b")
+API_KEY = os.getenv("API_KEY", "ritesh_free_3349aed8ab6e1bcd3e51999c")
 
 
 async def download_assistant(query: str, dl_type: str) -> str:
