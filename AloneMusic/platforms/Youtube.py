@@ -20,7 +20,7 @@ from pyrogram.types import Message
 from AloneMusic import LOGGER
 
 # Use environment variables for configuration
-API_URL = os.getenv("API_URL", "https://riteshyt.vercel.app").rstrip("/")
+API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "ritesh_free_3349aed8ab6e1bcd3e51999c")
 
 
