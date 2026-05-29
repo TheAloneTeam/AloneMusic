@@ -10,10 +10,10 @@
 import asyncio
 import os
 import re
-import urllib.parse
 from typing import Union
-
 import httpx
+import urllib.parse
+
 from pyrogram.enums import MessageEntityType
 from pyrogram.types import Message
 
@@ -22,7 +22,6 @@ from AloneMusic import LOGGER
 # Use environment variables for configuration
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "ritesh_free_3349aed8ab6e1bcd3e51999c")
-
 
 async def download_assistant(query: str, dl_type: str) -> str:
     """Helper to get stream URL from the API"""
@@ -35,10 +34,8 @@ async def download_assistant(query: str, dl_type: str) -> str:
         url = f"{API_URL}/downloads/stream?query={safe_query}&dl_type={dl_type}"
     return url
 
-
 async def download_song(link: str) -> str:
     return await download_assistant(link, "audio")
-
 
 async def download_video(link: str) -> str:
     return await download_assistant(link, "video")
@@ -47,6 +44,7 @@ async def download_video(link: str) -> str:
 class YouTubeAPI:
     def __init__(self):
         self.base = "https://www.youtube.com/watch?v="
+        self._recent_prefetches = {} # vidid -> timestamp
         self.regex = r"(?:youtube\.com|youtu\.be)"
         self.status = "https://www.youtube.com/oembed?url="
         self.listbase = "https://youtube.com/playlist?list="
@@ -102,9 +100,7 @@ class YouTubeAPI:
             if response.status_code == 200:
                 return response.json()
             else:
-                LOGGER(__name__).error(
-                    f"API Error ({response.status_code}): {response.text}"
-                )
+                LOGGER(__name__).error(f"API Error ({response.status_code}): {response.text}")
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching details from API: {e}")
         return None
@@ -114,13 +110,7 @@ class YouTubeAPI:
             link = self.base + link
         data = await self._fetch_details(link)
         if data:
-            return (
-                data["title"],
-                data["duration_min"],
-                data["duration_sec"],
-                data["thumbnail"],
-                data["vidid"],
-            )
+            return data["title"], data["duration_min"], data["duration_sec"], data["thumbnail"], data["vidid"]
         return None, None, 0, None, None
 
     async def title(self, link: str, videoid: Union[bool, str] = None):
@@ -168,9 +158,7 @@ class YouTubeAPI:
                 data = response.json()
                 return data.get("videos")
             else:
-                LOGGER(__name__).error(
-                    f"API Playlist Error ({response.status_code}): {response.text}"
-                )
+                LOGGER(__name__).error(f"API Playlist Error ({response.status_code}): {response.text}")
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching playlist from API: {e}")
         return None
@@ -190,9 +178,7 @@ class YouTubeAPI:
             return track_details, data["vidid"]
         return None, None
 
-    async def slider(
-        self, link: str, query_type: int, videoid: Union[bool, str] = None
-    ):
+    async def slider(self, link: str, query_type: int, videoid: Union[bool, str] = None):
         if videoid:
             link = self.base + link
         link = self._clean_link(link)
@@ -207,16 +193,9 @@ class YouTubeAPI:
                 result = result_data.get("result")
                 if result and len(result) > query_type:
                     res = result[query_type]
-                    return (
-                        res["title"],
-                        res["duration"],
-                        res["thumbnails"][0]["url"].split("?")[0],
-                        res["id"],
-                    )
+                    return res["title"], res["duration"], res["thumbnails"][0]["url"].split("?")[0], res["id"]
             else:
-                LOGGER(__name__).error(
-                    f"API Search Error ({response.status_code}): {response.text}"
-                )
+                 LOGGER(__name__).error(f"API Search Error ({response.status_code}): {response.text}")
         except Exception as e:
             LOGGER(__name__).error(f"Error in slider/search from API: {e}")
         return None, None, None, None
@@ -246,17 +225,16 @@ class YouTubeAPI:
 
         if vidid_extracted:
             ext = "mp4" if dl_type == "video" else "mp3"
+
+            # Immediately trigger prefetch in the background to warm up the cache
+            asyncio.create_task(self.prefetch(link, video=bool(dl_type == "video")))
+
             # Using the masked /downloads/youtube.com endpoint helps the player identify it
             # as a YouTube source and enables speed control/seeking via Range requests
             if API_KEY:
-                stream_url = (
-                    f"{API_URL}/downloads/{API_KEY}/youtube.com/{vidid_extracted}.{ext}"
-                )
+                stream_url = f"{API_URL}/downloads/{API_KEY}/youtube.com/{vidid_extracted}.{ext}"
             else:
                 stream_url = f"{API_URL}/downloads/youtube.com/{vidid_extracted}.{ext}"
-
-            # We trigger a details call to ensure the API starts caching the file locally
-            asyncio.create_task(self.prefetch(link, video=bool(dl_type == "video")))
         else:
             stream_url = await download_assistant(link, dl_type)
 
@@ -266,6 +244,25 @@ class YouTubeAPI:
         """Triggers background pre-fetching on the API"""
         dl_type = "video" if video else "audio"
         link = self._clean_link(link)
+
+        # Avoid redundant prefetches within 30 seconds
+        import time
+        now = time.time()
+        regex = r"(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\"&?\/\s]{11})"
+        match = re.search(regex, link)
+        vidid = match.group(1) if match else link
+
+        cache_key = f"{vidid}_{dl_type}"
+        if cache_key in self._recent_prefetches:
+             if now - self._recent_prefetches[cache_key] < 30:
+                  return True
+
+        self._recent_prefetches[cache_key] = now
+
+        # Cleanup old prefetches (keep cache small)
+        if len(self._recent_prefetches) > 100:
+             self._recent_prefetches = {k: v for k, v in self._recent_prefetches.items() if now - v < 300}
+
         client = await self.get_client()
         params = {"query": link, "dl_type": dl_type, "prefetch": "true"}
         if API_KEY:
@@ -295,9 +292,7 @@ class YouTubeAPI:
                     f["yturl"] = link
                 return formats, link
             else:
-                LOGGER(__name__).error(
-                    f"API Formats Error ({response.status_code}): {response.text}"
-                )
+                 LOGGER(__name__).error(f"API Formats Error ({response.status_code}): {response.text}")
         except Exception as e:
             LOGGER(__name__).error(f"Error fetching formats from API: {e}")
         return [], link
