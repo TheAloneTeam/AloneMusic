@@ -55,7 +55,7 @@ dependencies = [
   "heroku3>=5.2.1",
   "Pillow==12.2.0",
   "speedtest-cli>=2.1.3",
-  "yt-dlp==2026.3.17",
+  "yt-dlp==2026.6.9",
   "youtube-search>=2.2.0",
   "youtube-search-python>=1.6.6",
   "py-yt-search==0.6.2",
