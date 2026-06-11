@@ -1,4 +1,4 @@
-name: The Alone Repo CI
+name: The Alone Repo CI (Auto-Fix & Push)
 
 on:
   push:
@@ -7,16 +7,19 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: write # Direct master par push karne ke liye write permission zaroori hai
 
 jobs:
   full-check:
     runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]' # Prevent loop if bot pushes changes
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -24,10 +27,10 @@ jobs:
           python-version: "3.10.13"
 
       - name: Cache uv
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ~/.cache/uv
-          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml') }}
+          key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml', 'uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-uv-
 
@@ -45,7 +48,7 @@ jobs:
           uv lock --prerelease=allow
 
       - name: Sync dependencies
-        run: uv sync --frozen
+        run: uv sync # Removed --frozen so it can actually sync new locks seamlessly
 
       - name: Install tools
         run: uv pip install black isort ruff pip-audit
@@ -59,30 +62,27 @@ jobs:
         run: |
           uv run ruff check . --fix --unsafe-fixes --exit-zero
 
-      - name: Detect changes
-        run: |
-          uv lock --check --prerelease=allow || true
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "CHANGED=true" >> $GITHUB_ENV
-          else
-            echo "CHANGED=false" >> $GITHUB_ENV
-          fi
-
       - name: Dependency audit
         continue-on-error: true
         run: uv run pip-audit
 
-      - name: Create Pull Request
-        if: env.CHANGED == 'true' && github.actor != 'github-actions[bot]'
-        uses: peter-evans/create-pull-request@v8
-        with:
-          commit-message: "auto repo fix"
-          title: "Automated repo auto-fix"
-          body: |
-            Auto dependency sync
-            uv.lock regenerated
-            Formatting applied
-            Security audit done
-          labels: auto-fix
-          branch: repo-auto-check-${{ github.run_id }}
-          delete-branch: true
+      - name: Direct Commit and Push to Master
+        shell: bash
+        run: |
+          # Git setup for the bot
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Force check uv.lock changes before tracking status
+          uv lock --prerelease=allow || true
+          
+          # Check for modified or untracked files
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes found! Applying auto-fixes directly to master branch..."
+            git add -A
+            git commit -m "chore: auto repo fix (dependency sync, formatting & ruff cleanups)"
+            git push origin master
+          else
+            echo "No changes detected. Code is completely up to date!"
+          fi
+          
