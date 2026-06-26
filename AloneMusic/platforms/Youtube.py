@@ -21,7 +21,7 @@ from AloneMusic import LOGGER
 
 # Use environment variables for configuration
 API_URL = os.getenv("API_URL", "https://web.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "ritesh_free_3349aed8ab6e1bcd3e51999c")
+API_KEY = os.getenv("API_KEY", "")
 
 
 async def download_assistant(query: str, dl_type: str) -> str:
