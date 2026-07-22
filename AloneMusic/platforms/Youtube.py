@@ -20,7 +20,7 @@ from pyrogram.types import Message
 from AloneMusic import LOGGER
 
 # Use environment variables for configuration
-API_URL = os.getenv("API_URL", "http://web.riteshyt.in").rstrip("/")
+API_URL = os.getenv("API_URL", "https://web.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "")
 
 
