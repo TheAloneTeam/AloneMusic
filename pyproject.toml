@@ -42,7 +42,7 @@ dependencies = [
   "httpx>=0.27.0",
   "humanize>=4.15.0",
   "requests>=2.32.3",
-  "python-dotenv==1.2.2",
+  "python-dotenv==1.2.3",
   "pyyaml>=6.0.1",
   "unidecode>=1.4.0",
   "tgcrypto>=1.2.5",
