@@ -45,7 +45,7 @@ def convert_bytes(size: float) -> str:
     while size > power:
         size /= power
         t_n += 1
-    return "{:.2f} {}B".format(size, power_dict[t_n])
+    return f"{size:.2f} {power_dict[t_n]}B"
 
 
 async def int_to_alpha(user_id: int) -> str:
@@ -82,24 +82,24 @@ def seconds_to_min(seconds):
             seconds % 3600 % 60,
         )
         if d > 0:
-            return "{:02d}:{:02d}:{:02d}:{:02d}".format(d, h, m, s)
+            return f"{d:02d}:{h:02d}:{m:02d}:{s:02d}"
         elif h > 0:
-            return "{:02d}:{:02d}:{:02d}".format(h, m, s)
+            return f"{h:02d}:{m:02d}:{s:02d}"
         elif m > 0:
-            return "{:02d}:{:02d}".format(m, s)
+            return f"{m:02d}:{s:02d}"
         elif s > 0:
-            return "00:{:02d}".format(s)
+            return f"00:{s:02d}"
     return "-"
 
 
 def speed_converter(seconds, speed):
-    if str(speed) == str("0.5"):
+    if str(speed) == "0.5":
         seconds = seconds * 2
-    if str(speed) == str("0.75"):
+    if str(speed) == "0.75":
         seconds = seconds + ((50 * seconds) // 100)
-    if str(speed) == str("1.5"):
+    if str(speed) == "1.5":
         seconds = seconds - ((25 * seconds) // 100)
-    if str(speed) == str("2.0"):
+    if str(speed) == "2.0":
         seconds = seconds - ((50 * seconds) // 100)
     collect = seconds
     if seconds is not None:
@@ -111,16 +111,16 @@ def speed_converter(seconds, speed):
             seconds % 3600 % 60,
         )
         if d > 0:
-            convert = "{:02d}:{:02d}:{:02d}:{:02d}".format(d, h, m, s)
+            convert = f"{d:02d}:{h:02d}:{m:02d}:{s:02d}"
             return convert, collect
         elif h > 0:
-            convert = "{:02d}:{:02d}:{:02d}".format(h, m, s)
+            convert = f"{h:02d}:{m:02d}:{s:02d}"
             return convert, collect
         elif m > 0:
-            convert = "{:02d}:{:02d}".format(m, s)
+            convert = f"{m:02d}:{s:02d}"
             return convert, collect
         elif s > 0:
-            convert = "00:{:02d}".format(s)
+            convert = f"00:{s:02d}"
             return convert, collect
     return "-"
 
@@ -138,12 +138,11 @@ def check_duration(file_path):
     ]
 
     pipe = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    out, err = pipe.communicate()
+    out, _err = pipe.communicate()
     _json = json.loads(out)
 
-    if "format" in _json:
-        if "duration" in _json["format"]:
-            return float(_json["format"]["duration"])
+    if "format" in _json and "duration" in _json["format"]:
+        return float(_json["format"]["duration"])
 
     if "streams" in _json:
         for s in _json["streams"]:

@@ -8,8 +8,11 @@
 # All rights reserved.
 
 from py_yt import VideosSearch
-from pyrogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
-                            InlineQueryResultPhoto)
+from pyrogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InlineQueryResultPhoto,
+)
 
 from AloneMusic import app
 from AloneMusic.utils.inlinequery import answer

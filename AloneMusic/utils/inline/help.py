@@ -7,14 +7,13 @@
 #
 # All rights reserved.
 
-from typing import Union
 
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from AloneMusic import app
 
 
-def help_pannel(_, START: Union[bool, int] = None):
+def help_pannel(_, START: bool | int | None = None):
     first = [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")]
     second = [
         InlineKeyboardButton(

@@ -7,7 +7,6 @@
 #
 # All rights reserved.
 
-from typing import Union
 
 from pyrogram.types import InlineKeyboardButton
 
@@ -31,7 +30,7 @@ def setting_markup(_):
     return buttons
 
 
-def vote_mode_markup(_, current, mode: Union[bool, str] = None):
+def vote_mode_markup(_, current, mode: bool | str | None = None):
     buttons = [
         [
             InlineKeyboardButton(text="Vᴏᴛɪɴɢ ᴍᴏᴅᴇ ➜", callback_data="VOTEANSWER"),
@@ -59,7 +58,7 @@ def vote_mode_markup(_, current, mode: Union[bool, str] = None):
     return buttons
 
 
-def auth_users_markup(_, status: Union[bool, str] = None):
+def auth_users_markup(_, status: bool | str | None = None):
     buttons = [
         [
             InlineKeyboardButton(text=_["ST_B_7"], callback_data="AUTHANSWER"),
@@ -84,9 +83,9 @@ def auth_users_markup(_, status: Union[bool, str] = None):
 
 def playmode_users_markup(
     _,
-    Direct: Union[bool, str] = None,
-    Group: Union[bool, str] = None,
-    Playtype: Union[bool, str] = None,
+    Direct: bool | str | None = None,
+    Group: bool | str | None = None,
+    Playtype: bool | str | None = None,
 ):
     buttons = [
         [

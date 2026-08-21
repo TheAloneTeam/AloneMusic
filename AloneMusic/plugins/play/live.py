@@ -42,7 +42,7 @@ async def play_live_stream(client, CallbackQuery, _):
         _["play_2"].format(channel) if channel else _["play_1"]
     )
     try:
-        details, track_id = await YouTube.track(vidid, True)
+        details, _track_id = await YouTube.track(vidid, True)
     except:
         return await mystic.edit_text(_["play_3"])
     ffplay = True if fplay == "f" else None

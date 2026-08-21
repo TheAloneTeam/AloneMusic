@@ -45,7 +45,7 @@ async def send_large_error(text: str, caption: str, filename: str):
 # ========== Formatting & Routing ==========
 
 
-def format_traceback(err, tb, label: str, extras: dict = None) -> str:
+def format_traceback(err, tb, label: str, extras: dict | None = None) -> str:
     exc_type = type(err).__name__
     parts = [
         f"🚨 <b>{label} Captured</b>",
@@ -110,7 +110,7 @@ def capture_err(func):
             }
             filename = f"error_log_{message.chat.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Error", filename, extras)
-            raise err
+            raise
 
     return wrapper
 
@@ -137,7 +137,7 @@ def capture_callback_err(func):
             }
             filename = f"cb_error_log_{callback_query.message.chat.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Callback Error", filename, extras)
-            raise err
+            raise
 
     return wrapper
 
@@ -156,6 +156,6 @@ def capture_internal_err(func):
             extras = {"Function": func.__name__}
             filename = f"internal_error_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
             await handle_trace(err, tb, "Internal Error", filename, extras)
-            raise err
+            raise
 
     return wrapper

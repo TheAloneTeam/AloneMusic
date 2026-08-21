@@ -32,21 +32,20 @@ async def auto_leave():
                             ChatType.SUPERGROUP,
                             ChatType.GROUP,
                             ChatType.CHANNEL,
-                        ]:
-                            if (
-                                i.chat.id != config.LOGGER_ID
-                                and i.chat.id != -1002395523584
-                                and i.chat.id != -1002395523584
-                            ):
-                                if left == 25:
+                        ] and (
+                            i.chat.id != config.LOGGER_ID
+                            and i.chat.id != -1002395523584
+                            and i.chat.id != -1002395523584
+                        ):
+                            if left == 25:
+                                continue
+                            if not await is_active_chat(i.chat.id):
+                                try:
+                                    await client.leave_chat(i.chat.id)
+                                    left += 1
+                                    await asyncio.sleep(5)
+                                except:
                                     continue
-                                if not await is_active_chat(i.chat.id):
-                                    try:
-                                        await client.leave_chat(i.chat.id)
-                                        left += 1
-                                        await asyncio.sleep(5)
-                                    except:
-                                        continue
                 except:
                     pass
 

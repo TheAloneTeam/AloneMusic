@@ -22,9 +22,8 @@ from config import BANNED_USERS, OWNER_ID
 @app.on_message(filters.command(["addsudo"]) & filters.user(OWNER_ID))
 @language
 async def useradd(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     if user.id in SUDOERS:
         return await message.reply_text(_["sudo_1"].format(user.mention))
@@ -39,9 +38,8 @@ async def useradd(client, message: Message, _):
 @app.on_message(filters.command(["delsudo", "rmsudo"]) & filters.user(OWNER_ID))
 @language
 async def userdel(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     if user.id not in SUDOERS:
         return await message.reply_text(_["sudo_3"].format(user.mention))

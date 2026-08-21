@@ -15,17 +15,20 @@ from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from pytgcalls.exceptions import NoActiveGroupCall
 
 import config
-from AloneMusic import (Apple, Resso, SoundCloud, Spotify, Telegram, YouTube,
-                        app)
+from AloneMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
 from AloneMusic.core.call import Alone
 from AloneMusic.utils import seconds_to_min, time_to_seconds
 from AloneMusic.utils.channelplay import get_channeplayCB
 from AloneMusic.utils.decorators.language import languageCB
 from AloneMusic.utils.decorators.play import PlayWrapper
 from AloneMusic.utils.formatters import formats
-from AloneMusic.utils.inline import (botplaylist_markup, livestream_markup,
-                                     playlist_markup, slider_markup,
-                                     track_markup)
+from AloneMusic.utils.inline import (
+    botplaylist_markup,
+    livestream_markup,
+    playlist_markup,
+    slider_markup,
+    track_markup,
+)
 from AloneMusic.utils.logger import play_logs
 from AloneMusic.utils.stream.stream import stream
 from config import BANNED_USERS, lyrical
@@ -298,7 +301,7 @@ async def play_commnd(
             cap = _["play_10"].format(details["title"], details["duration_min"])
         elif await SoundCloud.valid(url):
             try:
-                details, track_path = await SoundCloud.download(url)
+                details, _track_path = await SoundCloud.download(url)
             except:
                 return await mystic.edit_text(_["play_3"])
             duration_sec = details["duration_sec"]
@@ -613,12 +616,12 @@ async def play_playlists_command(client, CallbackQuery, _):
             return await mystic.edit_text(_["play_3"])
     if ptype == "spartist":
         try:
-            result, spotify_id = await Spotify.artist(videoid)
+            result, _spotify_id = await Spotify.artist(videoid)
         except:
             return await mystic.edit_text(_["play_3"])
     if ptype == "apple":
         try:
-            result, apple_id = await Apple.playlist(videoid, True)
+            result, _apple_id = await Apple.playlist(videoid, True)
         except:
             return await mystic.edit_text(_["play_3"])
     try:

@@ -7,7 +7,6 @@
 #
 # All rights reserved.
 
-from typing import Union
 
 
 class AssistantErr(Exception):
@@ -26,7 +25,7 @@ IGNORED_ERROR_KEYWORDS = [
 IGNORED_EXCEPTION_CLASSES = ()
 
 
-def is_ignored_error(err: Union[Exception, BaseException]) -> bool:
+def is_ignored_error(err: Exception | BaseException) -> bool:
     if isinstance(err, IGNORED_EXCEPTION_CLASSES):
         return True
 

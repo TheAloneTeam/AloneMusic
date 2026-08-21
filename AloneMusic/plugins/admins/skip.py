@@ -152,7 +152,7 @@ async def skip(cli, message: Message, _, chat_id):
     elif "vid_" in queued:
         mystic = await message.reply_text(_["call_7"], disable_web_page_preview=True)
         try:
-            file_path, direct = await YouTube.download(
+            file_path, _direct = await YouTube.download(
                 videoid,
                 mystic,
                 videoid=True,
@@ -201,9 +201,7 @@ async def skip(cli, message: Message, _, chat_id):
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "tg"
     else:
-        if videoid == "telegram":
-            image = None
-        elif videoid == "soundcloud":
+        if videoid == "telegram" or videoid == "soundcloud":
             image = None
         else:
             try:

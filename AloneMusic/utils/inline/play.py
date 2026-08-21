@@ -36,8 +36,7 @@ def stream_markup_timer(_, chat_id, played, dur):
     duration_sec = time_to_seconds(dur)
 
     remaining_sec = duration_sec - played_sec
-    if remaining_sec < 0:
-        remaining_sec = 0
+    remaining_sec = max(remaining_sec, 0)
 
     rem_min = remaining_sec // 60
     rem_sec = remaining_sec % 60

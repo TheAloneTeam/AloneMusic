@@ -17,8 +17,7 @@ from pyrogram.types import CallbackQuery, Message
 from AloneMusic import app
 from AloneMusic.core.call import Alone
 from AloneMusic.misc import db
-from AloneMusic.utils.database import (get_assistant, get_authuser_names,
-                                       get_cmode)
+from AloneMusic.utils.database import get_assistant, get_authuser_names, get_cmode
 from AloneMusic.utils.decorators import ActualAdminCB, AdminActual, language
 from AloneMusic.utils.formatters import alpha_to_int, get_readable_time
 from config import BANNED_USERS, adminlist, lyrical
@@ -37,7 +36,7 @@ async def reload_admin_cache(client, message: Message, _):
         else:
             saved = rel[message.chat.id]
             if saved > time.time():
-                left = get_readable_time((int(saved) - int(time.time())))
+                left = get_readable_time(int(saved) - int(time.time()))
                 return await message.reply_text(_["reload_1"].format(left))
         adminlist[message.chat.id] = []
         async for user in app.get_chat_members(

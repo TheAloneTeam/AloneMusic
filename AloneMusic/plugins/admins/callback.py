@@ -16,19 +16,32 @@ import config
 from AloneMusic import YouTube, app
 from AloneMusic.core.call import Alone
 from AloneMusic.misc import SUDOERS, db
-from AloneMusic.utils.database import (get_active_chats, get_lang,
-                                       get_upvote_count, is_active_chat,
-                                       is_music_playing, is_nonadmin_chat,
-                                       music_off, music_on, set_loop)
+from AloneMusic.utils.database import (
+    get_active_chats,
+    get_lang,
+    get_upvote_count,
+    is_active_chat,
+    is_music_playing,
+    is_nonadmin_chat,
+    music_off,
+    music_on,
+    set_loop,
+)
 from AloneMusic.utils.decorators.language import languageCB
 from AloneMusic.utils.formatters import seconds_to_min
-from AloneMusic.utils.inline import (close_markup, stream_markup,
-                                     stream_markup_timer)
+from AloneMusic.utils.inline import close_markup, stream_markup, stream_markup_timer
 from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
-from config import (BANNED_USERS, SOUNCLOUD_IMG_URL, STREAM_IMG_URL,
-                    TELEGRAM_AUDIO_URL, TELEGRAM_VIDEO_URL, adminlist,
-                    confirmer, votemode)
+from config import (
+    BANNED_USERS,
+    SOUNCLOUD_IMG_URL,
+    STREAM_IMG_URL,
+    TELEGRAM_AUDIO_URL,
+    TELEGRAM_VIDEO_URL,
+    adminlist,
+    confirmer,
+    votemode,
+)
 from strings import get_string
 
 checker = {}
@@ -117,16 +130,15 @@ async def del_back_playlist(client, CallbackQuery, _):
             return await CallbackQuery.edit_message_reply_markup(reply_markup=upl)
     else:
         is_non_admin = await is_nonadmin_chat(CallbackQuery.message.chat.id)
-        if not is_non_admin:
-            if CallbackQuery.from_user.id not in SUDOERS:
-                admins = adminlist.get(CallbackQuery.message.chat.id)
-                if not admins:
-                    return await CallbackQuery.answer(_["admin_13"], show_alert=True)
-                else:
-                    if CallbackQuery.from_user.id not in admins:
-                        return await CallbackQuery.answer(
-                            _["admin_14"], show_alert=True
-                        )
+        if not is_non_admin and CallbackQuery.from_user.id not in SUDOERS:
+            admins = adminlist.get(CallbackQuery.message.chat.id)
+            if not admins:
+                return await CallbackQuery.answer(_["admin_13"], show_alert=True)
+            else:
+                if CallbackQuery.from_user.id not in admins:
+                    return await CallbackQuery.answer(
+                        _["admin_14"], show_alert=True
+                    )
     if command == "Pause":
         if not await is_music_playing(chat_id):
             return await CallbackQuery.answer(_["admin_1"], show_alert=True)
@@ -243,7 +255,7 @@ async def del_back_playlist(client, CallbackQuery, _):
                 _["call_7"], disable_web_page_preview=True
             )
             try:
-                file_path, direct = await YouTube.download(
+                file_path, _direct = await YouTube.download(
                     videoid,
                     mystic,
                     videoid=True,
@@ -292,9 +304,7 @@ async def del_back_playlist(client, CallbackQuery, _):
             db[chat_id][0]["markup"] = "tg"
             await CallbackQuery.edit_message_text(txt, reply_markup=close_markup(_))
         else:
-            if videoid == "telegram":
-                image = None
-            elif videoid == "soundcloud":
+            if videoid == "telegram" or videoid == "soundcloud":
                 image = None
             else:
                 try:

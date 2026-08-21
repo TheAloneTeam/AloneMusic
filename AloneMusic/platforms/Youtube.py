@@ -11,7 +11,6 @@ import asyncio
 import os
 import re
 import urllib.parse
-from typing import Union
 
 import httpx
 from pyrogram.enums import MessageEntityType
@@ -59,12 +58,12 @@ class YouTubeAPI:
             self._client = httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=10.0))
         return self._client
 
-    async def exists(self, link: str, videoid: Union[bool, str] = None):
+    async def exists(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         return bool(re.search(self.regex, link))
 
-    async def url(self, message_1: Message) -> Union[str, None]:
+    async def url(self, message_1: Message) -> str | None:
         messages = [message_1]
         if message_1.reply_to_message:
             messages.append(message_1.reply_to_message)
@@ -110,7 +109,7 @@ class YouTubeAPI:
             LOGGER(__name__).error(f"Error fetching details from API: {e}")
         return None
 
-    async def details(self, link: str, videoid: Union[bool, str] = None):
+    async def details(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         data = await self._fetch_details(link)
@@ -124,25 +123,25 @@ class YouTubeAPI:
             )
         return None, None, 0, None, None
 
-    async def title(self, link: str, videoid: Union[bool, str] = None):
+    async def title(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         data = await self._fetch_details(link)
         return data["title"] if data else None
 
-    async def duration(self, link: str, videoid: Union[bool, str] = None):
+    async def duration(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         data = await self._fetch_details(link)
         return data["duration_min"] if data else None
 
-    async def thumbnail(self, link: str, videoid: Union[bool, str] = None):
+    async def thumbnail(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         data = await self._fetch_details(link)
         return data["thumbnail"] if data else None
 
-    async def video(self, link: str, videoid: Union[bool, str] = None):
+    async def video(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         try:
@@ -154,7 +153,7 @@ class YouTubeAPI:
         except Exception as e:
             return 0, f"Video URL generation error: {e}"
 
-    async def playlist(self, link, limit, user_id, videoid: Union[bool, str] = None):
+    async def playlist(self, link, limit, user_id, videoid: bool | str | None = None):
         if videoid:
             link = self.listbase + link
         link = self._clean_link(link)
@@ -176,7 +175,7 @@ class YouTubeAPI:
             LOGGER(__name__).error(f"Error fetching playlist from API: {e}")
         return None
 
-    async def track(self, link: str, videoid: Union[bool, str] = None):
+    async def track(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         data = await self._fetch_details(link)
@@ -192,7 +191,7 @@ class YouTubeAPI:
         return None, None
 
     async def slider(
-        self, link: str, query_type: int, videoid: Union[bool, str] = None
+        self, link: str, query_type: int, videoid: bool | str | None = None
     ):
         if videoid:
             link = self.base + link
@@ -226,12 +225,12 @@ class YouTubeAPI:
         self,
         link: str,
         mystic,
-        video: Union[bool, str] = None,
-        videoid: Union[bool, str] = None,
-        songaudio: Union[bool, str] = None,
-        songvideo: Union[bool, str] = None,
-        format_id: Union[bool, str] = None,
-        title: Union[bool, str] = None,
+        video: bool | str | None = None,
+        videoid: bool | str | None = None,
+        songaudio: bool | str | None = None,
+        songvideo: bool | str | None = None,
+        format_id: bool | str | None = None,
+        title: bool | str | None = None,
     ) -> tuple:
         if videoid:
             link = self.base + link
@@ -302,7 +301,7 @@ class YouTubeAPI:
             LOGGER(__name__).error(f"Prefetch failed for {link}: {e}")
         return False
 
-    async def formats(self, link: str, videoid: Union[bool, str] = None):
+    async def formats(self, link: str, videoid: bool | str | None = None):
         if videoid:
             link = self.base + link
         link = self._clean_link(link)

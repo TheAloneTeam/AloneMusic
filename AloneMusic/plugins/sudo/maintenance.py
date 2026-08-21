@@ -12,8 +12,12 @@ from pyrogram.types import Message
 
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
-from AloneMusic.utils.database import (get_lang, is_maintenance,
-                                       maintenance_off, maintenance_on)
+from AloneMusic.utils.database import (
+    get_lang,
+    is_maintenance,
+    maintenance_off,
+    maintenance_on,
+)
 from strings import get_string
 
 

@@ -16,9 +16,14 @@ from pyrogram.types import Message
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
 from AloneMusic.utils import get_readable_time
-from AloneMusic.utils.database import (add_banned_user, get_banned_count,
-                                       get_banned_users, get_served_chats,
-                                       is_banned_user, remove_banned_user)
+from AloneMusic.utils.database import (
+    add_banned_user,
+    get_banned_count,
+    get_banned_users,
+    get_served_chats,
+    is_banned_user,
+    remove_banned_user,
+)
 from AloneMusic.utils.decorators.language import language
 from AloneMusic.utils.extraction import extract_user
 from config import BANNED_USERS
@@ -27,9 +32,8 @@ from config import BANNED_USERS
 @app.on_message(filters.command(["gban", "globalban"]) & SUDOERS)
 @language
 async def global_ban(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     if user.id == message.from_user.id:
         return await message.reply_text(_["gban_1"])
@@ -75,9 +79,8 @@ async def global_ban(client, message: Message, _):
 @app.on_message(filters.command(["ungban"]) & SUDOERS)
 @language
 async def global_un(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     is_gbanned = await is_banned_user(user.id)
     if not is_gbanned:

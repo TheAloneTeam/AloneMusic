@@ -8,6 +8,7 @@
 # All rights reserved.
 
 import os
+import sys
 from typing import List
 
 import yaml
@@ -40,4 +41,4 @@ for filename in os.listdir(r"./strings/langs/"):
         languages_present[language_name] = languages[language_name]["name"]
     except:
         print("There is some issue with the language file inside bot.")
-        exit()
+        sys.exit()

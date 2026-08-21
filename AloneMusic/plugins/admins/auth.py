@@ -12,8 +12,12 @@ from pyrogram.types import Message
 
 from AloneMusic import app
 from AloneMusic.utils import extract_user, int_to_alpha
-from AloneMusic.utils.database import (delete_authuser, get_authuser,
-                                       get_authuser_names, save_authuser)
+from AloneMusic.utils.database import (
+    delete_authuser,
+    get_authuser,
+    get_authuser_names,
+    save_authuser,
+)
 from AloneMusic.utils.decorators import AdminActual, language
 from AloneMusic.utils.inline import close_markup
 from config import BANNED_USERS, adminlist
@@ -22,9 +26,8 @@ from config import BANNED_USERS, adminlist
 @app.on_message(filters.command("auth") & filters.group & ~BANNED_USERS)
 @AdminActual
 async def auth(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     token = await int_to_alpha(user.id)
     _check = await get_authuser_names(message.chat.id)
@@ -39,9 +42,8 @@ async def auth(client, message: Message, _):
             "admin_name": message.from_user.first_name,
         }
         get = adminlist.get(message.chat.id)
-        if get:
-            if user.id not in get:
-                get.append(user.id)
+        if get and user.id not in get:
+            get.append(user.id)
         await save_authuser(message.chat.id, token, assis)
         return await message.reply_text(_["auth_2"].format(user.mention))
     else:
@@ -51,16 +53,14 @@ async def auth(client, message: Message, _):
 @app.on_message(filters.command("unauth") & filters.group & ~BANNED_USERS)
 @AdminActual
 async def unauthusers(client, message: Message, _):
-    if not message.reply_to_message:
-        if len(message.command) != 2:
-            return await message.reply_text(_["general_1"])
+    if not message.reply_to_message and len(message.command) != 2:
+        return await message.reply_text(_["general_1"])
     user = await extract_user(message)
     token = await int_to_alpha(user.id)
     deleted = await delete_authuser(message.chat.id, token)
     get = adminlist.get(message.chat.id)
-    if get:
-        if user.id in get:
-            get.remove(user.id)
+    if get and user.id in get:
+        get.remove(user.id)
     if deleted:
         return await message.reply_text(_["auth_4"].format(user.mention))
     else:

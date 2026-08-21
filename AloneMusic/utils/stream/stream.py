@@ -8,7 +8,6 @@
 
 import os
 from random import randint
-from typing import Union
 
 from pyrogram.types import InlineKeyboardMarkup
 
@@ -32,10 +31,10 @@ async def stream(
     chat_id,
     user_name,
     original_chat_id,
-    video: Union[bool, str] = None,
-    streamtype: Union[bool, str] = None,
-    spotify: Union[bool, str] = None,
-    forceplay: Union[bool, str] = None,
+    video: bool | str | None = None,
+    streamtype: bool | str | None = None,
+    spotify: bool | str | None = None,
+    forceplay: bool | str | None = None,
 ):
     if not result:
         return
@@ -54,7 +53,7 @@ async def stream(
                     duration_sec,
                     thumbnail,
                     vidid,
-                ) = await YouTube.details(search, False if spotify else True)
+                ) = await YouTube.details(search, not spotify)
             except:
                 continue
             if str(duration_min) == "None":

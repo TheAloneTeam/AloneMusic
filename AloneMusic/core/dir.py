@@ -13,11 +13,7 @@ from ..logging import LOGGER
 
 def dirr():
     for file in os.listdir():
-        if file.endswith(".jpg"):
-            os.remove(file)
-        elif file.endswith(".jpeg"):
-            os.remove(file)
-        elif file.endswith(".png"):
+        if file.endswith((".jpg", ".jpeg", ".png")):
             os.remove(file)
 
     if "downloads" not in os.listdir():

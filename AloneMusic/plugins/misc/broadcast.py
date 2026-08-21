@@ -15,9 +15,13 @@ from pyrogram.errors import FloodWait
 
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
-from AloneMusic.utils.database import (get_active_chats, get_authuser_names,
-                                       get_client, get_served_chats,
-                                       get_served_users)
+from AloneMusic.utils.database import (
+    get_active_chats,
+    get_authuser_names,
+    get_client,
+    get_served_chats,
+    get_served_users,
+)
 from AloneMusic.utils.decorators.language import language
 from AloneMusic.utils.formatters import alpha_to_int
 from config import adminlist

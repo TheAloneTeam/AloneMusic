@@ -11,7 +11,6 @@ import os
 import shutil
 import time
 from shutil import disk_usage
-from typing import Dict, Tuple
 
 from humanize import naturalsize
 from pyrogram import filters
@@ -25,7 +24,7 @@ CLEANABLE_FOLDERS = ["downloads", "cache", "temp"]
 MAX_FOLDER_DEPTH = 3  # How many subfolder levels to show
 
 
-def get_folder_stats(folder: str) -> Tuple[int, int]:
+def get_folder_stats(folder: str) -> tuple[int, int]:
     """Get total size and file count for a folder."""
     total_size = 0
     file_count = 0
@@ -39,7 +38,7 @@ def get_folder_stats(folder: str) -> Tuple[int, int]:
     return total_size, file_count
 
 
-def get_folder_structure(folder: str, depth: int = 0) -> Dict[str, Tuple[int, int]]:
+def get_folder_structure(folder: str, depth: int = 0) -> dict[str, tuple[int, int]]:
     """Get folder structure with sizes and counts up to specified depth."""
     if depth > MAX_FOLDER_DEPTH:
         return {}
@@ -57,7 +56,7 @@ def get_folder_structure(folder: str, depth: int = 0) -> Dict[str, Tuple[int, in
 
 
 def format_folder_structure(
-    structure: Dict[str, Tuple[int, int, Dict]], indent: int = 0
+    structure: dict[str, tuple[int, int, dict]], indent: int = 0
 ) -> str:
     """Format folder structure for display."""
     if not structure:
@@ -158,7 +157,7 @@ async def show_storage(_, message: Message):
     )
 
 
-async def clean_folder(folder: str) -> Tuple[bool, str]:
+async def clean_folder(folder: str) -> tuple[bool, str]:
     """Clean a specific folder and return status."""
     try:
         if os.path.exists(folder):

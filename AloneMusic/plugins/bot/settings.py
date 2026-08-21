@@ -11,23 +11,39 @@ from time import time
 from pyrogram import filters
 from pyrogram.enums import ChatType
 from pyrogram.errors import MessageNotModified
-from pyrogram.types import (CallbackQuery, InlineKeyboardButton,
-                            InlineKeyboardMarkup, Message)
+from pyrogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 import config
 from AloneMusic import app
-from AloneMusic.utils.database import (add_nonadmin_chat, get_authuser,
-                                       get_authuser_names, get_playmode,
-                                       get_playtype, get_upvote_count,
-                                       is_nonadmin_chat, is_skipmode,
-                                       remove_nonadmin_chat, set_playmode,
-                                       set_playtype, set_upvotes, skip_off,
-                                       skip_on)
+from AloneMusic.utils.database import (
+    add_nonadmin_chat,
+    get_authuser,
+    get_authuser_names,
+    get_playmode,
+    get_playtype,
+    get_upvote_count,
+    is_nonadmin_chat,
+    is_skipmode,
+    remove_nonadmin_chat,
+    set_playmode,
+    set_playtype,
+    set_upvotes,
+    skip_off,
+    skip_on,
+)
 from AloneMusic.utils.decorators.admins import ActualAdminCB
 from AloneMusic.utils.decorators.language import language, languageCB
-from AloneMusic.utils.inline.settings import (auth_users_markup,
-                                              playmode_users_markup,
-                                              setting_markup, vote_mode_markup)
+from AloneMusic.utils.inline.settings import (
+    auth_users_markup,
+    playmode_users_markup,
+    setting_markup,
+    vote_mode_markup,
+)
 from AloneMusic.utils.inline.start import private_panel
 from config import BANNED_USERS, OWNER_ID
 
@@ -79,7 +95,6 @@ async def show_bot_info(c: app, q: CallbackQuery):
 • ᴇᴠᴇʀʏᴛʜɪɴɢ ʟᴏᴏᴋs ɢᴏᴏᴅ!
 """
     await q.answer(txt, show_alert=True)
-    return
 
 
 @app.on_callback_query(filters.regex("shiv_aarumi") & ~BANNED_USERS)
@@ -232,8 +247,7 @@ async def addition(client, CallbackQuery, _):
                 _["setting_11"],
                 show_alert=True,
             )
-        if final <= 2:
-            final = 2
+        final = max(2, final)
         await set_upvotes(CallbackQuery.message.chat.id, final)
     else:
         final = current + 2
@@ -243,8 +257,7 @@ async def addition(client, CallbackQuery, _):
                 _["setting_12"],
                 show_alert=True,
             )
-        if final >= 15:
-            final = 15
+        final = min(15, final)
         await set_upvotes(CallbackQuery.message.chat.id, final)
     buttons = vote_mode_markup(_, final, True)
     try:

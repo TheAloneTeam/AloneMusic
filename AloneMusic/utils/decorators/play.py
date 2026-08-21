@@ -10,15 +10,25 @@
 import asyncio
 
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import (ChatAdminRequired, InviteRequestSent,
-                             UserAlreadyParticipant, UserNotParticipant)
+from pyrogram.errors import (
+    ChatAdminRequired,
+    InviteRequestSent,
+    UserAlreadyParticipant,
+    UserNotParticipant,
+)
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from AloneMusic import YouTube, app
 from AloneMusic.misc import SUDOERS
-from AloneMusic.utils.database import (get_assistant, get_cmode, get_lang,
-                                       get_playmode, get_playtype,
-                                       is_active_chat, is_maintenance)
+from AloneMusic.utils.database import (
+    get_assistant,
+    get_cmode,
+    get_lang,
+    get_playmode,
+    get_playtype,
+    is_active_chat,
+    is_maintenance,
+)
 from AloneMusic.utils.inline import botplaylist_markup
 from config import PLAYLIST_IMG_URL, SUPPORT_CHAT, adminlist
 from strings import get_string
@@ -90,14 +100,13 @@ def PlayWrapper(command):
             channel = None
         playmode = await get_playmode(message.chat.id)
         playty = await get_playtype(message.chat.id)
-        if playty != "Everyone":
-            if message.from_user.id not in SUDOERS:
-                admins = adminlist.get(message.chat.id)
-                if not admins:
-                    return await message.reply_text(_["admin_13"])
-                else:
-                    if message.from_user.id not in admins:
-                        return await message.reply_text(_["play_4"])
+        if playty != "Everyone" and message.from_user.id not in SUDOERS:
+            admins = adminlist.get(message.chat.id)
+            if not admins:
+                return await message.reply_text(_["admin_13"])
+            else:
+                if message.from_user.id not in admins:
+                    return await message.reply_text(_["play_4"])
         if message.command[0][0] == "v":
             video = True
         else:

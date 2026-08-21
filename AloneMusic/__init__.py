@@ -22,8 +22,7 @@ app = Alone()
 userbot = Userbot()
 
 
-from .platforms import (Apple, Carbon, Resso, Soundcloud, Spotify, Telegram,
-                        Youtube)
+from .platforms import Apple, Carbon, Resso, Soundcloud, Spotify, Telegram, Youtube
 
 Apple = Apple.AppleAPI()
 Carbon = Carbon.CarbonAPI()

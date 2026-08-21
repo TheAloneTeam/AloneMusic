@@ -22,8 +22,7 @@ from AloneMusic import app
 from AloneMusic.core.userbot import assistants
 from AloneMusic.misc import SUDOERS, mongodb
 from AloneMusic.plugins import ALL_MODULES
-from AloneMusic.utils.database import (get_served_chats, get_served_users,
-                                       get_sudoers)
+from AloneMusic.utils.database import get_served_chats, get_served_users, get_sudoers
 from AloneMusic.utils.decorators.language import language, languageCB
 from AloneMusic.utils.inline.stats import back_stats_buttons, stats_buttons
 from config import BANNED_USERS
@@ -32,7 +31,7 @@ from config import BANNED_USERS
 @app.on_message(filters.command(["stats", "gstats"]) & filters.group & ~BANNED_USERS)
 @language
 async def stats_global(client, message: Message, _):
-    upl = stats_buttons(_, True if message.from_user.id in SUDOERS else False)
+    upl = stats_buttons(_, message.from_user.id in SUDOERS)
     await message.reply_photo(
         photo=config.STATS_IMG_URL,
         caption=_["gstats_2"].format(app.mention),
@@ -43,7 +42,7 @@ async def stats_global(client, message: Message, _):
 @app.on_callback_query(filters.regex("stats_back") & ~BANNED_USERS)
 @languageCB
 async def home_stats(client, CallbackQuery, _):
-    upl = stats_buttons(_, True if CallbackQuery.from_user.id in SUDOERS else False)
+    upl = stats_buttons(_, CallbackQuery.from_user.id in SUDOERS)
     await CallbackQuery.edit_message_text(
         text=_["gstats_2"].format(app.mention),
         reply_markup=upl,

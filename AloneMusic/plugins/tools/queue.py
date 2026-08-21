@@ -18,8 +18,7 @@ import config
 from AloneMusic import app
 from AloneMusic.misc import db
 from AloneMusic.utils import AloneBin, get_channeplayCB, seconds_to_min
-from AloneMusic.utils.database import (get_cmode, is_active_chat,
-                                       is_music_playing)
+from AloneMusic.utils.database import get_cmode, is_active_chat, is_music_playing
 from AloneMusic.utils.decorators.language import language, languageCB
 from AloneMusic.utils.inline import queue_back_markup, queue_markup
 from config import BANNED_USERS
@@ -75,9 +74,7 @@ async def get_queue(client, message: Message, _):
     title = (got[0]["title"]).title()
     typo = (got[0]["streamtype"]).title()
     DUR = get_duration(got)
-    if "live_" in file:
-        IMAGE = get_image(videoid)
-    elif "vid_" in file:
+    if "live_" in file or "vid_" in file:
         IMAGE = get_image(videoid)
     elif "index_" in file:
         IMAGE = config.STREAM_IMG_URL
@@ -152,7 +149,7 @@ async def queued_tracks(client, CallbackQuery: CallbackQuery, _):
     callback_request = callback_data.split(None, 1)[1]
     what, videoid = callback_request.split("|")
     try:
-        chat_id, channel = await get_channeplayCB(_, what, CallbackQuery)
+        chat_id, _channel = await get_channeplayCB(_, what, CallbackQuery)
     except:
         return
     if not await is_active_chat(chat_id):
@@ -200,7 +197,7 @@ async def queue_back(client, CallbackQuery: CallbackQuery, _):
     callback_data = CallbackQuery.data.strip()
     cplay = callback_data.split(None, 1)[1]
     try:
-        chat_id, channel = await get_channeplayCB(_, cplay, CallbackQuery)
+        chat_id, _channel = await get_channeplayCB(_, cplay, CallbackQuery)
     except:
         return
     if not await is_active_chat(chat_id):
@@ -215,9 +212,7 @@ async def queue_back(client, CallbackQuery: CallbackQuery, _):
     title = (got[0]["title"]).title()
     typo = (got[0]["streamtype"]).title()
     DUR = get_duration(got)
-    if "live_" in file:
-        IMAGE = get_image(videoid)
-    elif "vid_" in file:
+    if "live_" in file or "vid_" in file:
         IMAGE = get_image(videoid)
     elif "index_" in file:
         IMAGE = config.STREAM_IMG_URL

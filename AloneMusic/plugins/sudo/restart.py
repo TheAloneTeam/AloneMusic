@@ -19,8 +19,11 @@ from pyrogram import filters
 import config
 from AloneMusic import app
 from AloneMusic.misc import HAPP, SUDOERS, XCB
-from AloneMusic.utils.database import (get_active_chats, remove_active_chat,
-                                       remove_active_video_chat)
+from AloneMusic.utils.database import (
+    get_active_chats,
+    remove_active_chat,
+    remove_active_video_chat,
+)
 from AloneMusic.utils.decorators.language import language
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -44,9 +47,8 @@ async def log_(client, message, _):
 @app.on_message(filters.command(["update", "gitpull"]) & SUDOERS)
 @language
 async def update_(client, message, _):
-    if await is_heroku():
-        if HAPP is None:
-            return await message.reply_text(_["server_2"])
+    if await is_heroku() and HAPP is None:
+        return await message.reply_text(_["server_2"])
 
     response = await message.reply_text(_["server_3"])
 

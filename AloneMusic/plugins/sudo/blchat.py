@@ -12,8 +12,7 @@ from pyrogram.types import Message
 
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
-from AloneMusic.utils.database import (blacklist_chat, blacklisted_chats,
-                                       whitelist_chat)
+from AloneMusic.utils.database import blacklist_chat, blacklisted_chats, whitelist_chat
 from AloneMusic.utils.decorators.language import language
 from config import BANNED_USERS
 

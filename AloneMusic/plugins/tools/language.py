@@ -8,8 +8,12 @@
 # All rights reserved.
 
 from pyrogram import filters
-from pyrogram.types import (CallbackQuery, InlineKeyboardButton,
-                            InlineKeyboardMarkup, Message)
+from pyrogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 from AloneMusic import app
 from AloneMusic.utils.database import get_lang, set_lang

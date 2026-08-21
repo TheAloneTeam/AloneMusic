@@ -55,14 +55,13 @@ async def del_back_playlist(client, CallbackQuery, _):
     if not await is_active_chat(chat_id):
         return await CallbackQuery.answer(_["general_5"], show_alert=True)
     is_non_admin = await is_nonadmin_chat(CallbackQuery.message.chat.id)
-    if not is_non_admin:
-        if CallbackQuery.from_user.id not in SUDOERS:
-            admins = adminlist.get(CallbackQuery.message.chat.id)
-            if not admins:
-                return await CallbackQuery.answer(_["admin_13"], show_alert=True)
-            else:
-                if CallbackQuery.from_user.id not in admins:
-                    return await CallbackQuery.answer(_["admin_14"], show_alert=True)
+    if not is_non_admin and CallbackQuery.from_user.id not in SUDOERS:
+        admins = adminlist.get(CallbackQuery.message.chat.id)
+        if not admins:
+            return await CallbackQuery.answer(_["admin_13"], show_alert=True)
+        else:
+            if CallbackQuery.from_user.id not in admins:
+                return await CallbackQuery.answer(_["admin_14"], show_alert=True)
     playing = db.get(chat_id)
     if not playing:
         return await CallbackQuery.answer(_["queue_2"], show_alert=True)
@@ -74,14 +73,13 @@ async def del_back_playlist(client, CallbackQuery, _):
         return await CallbackQuery.answer(_["admin_27"], show_alert=True)
     checkspeed = (playing[0]).get("speed")
     if checkspeed:
-        if str(checkspeed) == str(speed):
-            if str(speed) == str("1.0"):
-                return await CallbackQuery.answer(
-                    _["admin_29"],
-                    show_alert=True,
-                )
+        if str(checkspeed) == str(speed) and str(speed) == "1.0":
+            return await CallbackQuery.answer(
+                _["admin_29"],
+                show_alert=True,
+            )
     else:
-        if str(speed) == str("1.0"):
+        if str(speed) == "1.0":
             return await CallbackQuery.answer(
                 _["admin_29"],
                 show_alert=True,
