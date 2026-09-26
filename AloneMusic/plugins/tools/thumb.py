@@ -67,14 +67,10 @@ async def thumb_cmd(client, message: Message, _):
         state = message.command[1].lower()
         if state in ["on", "enable"]:
             await enable_thumbnail(chat_id)
-            return await message.reply_text(
-                "» Playback thumbnail has been Enabled."
-            )
+            return await message.reply_text("» Playback thumbnail has been Enabled.")
         elif state in ["off", "disable"]:
             await disable_thumbnail(chat_id)
-            return await message.reply_text(
-                "» Playback thumbnail has been Disabled."
-            )
+            return await message.reply_text("» Playback thumbnail has been Disabled.")
 
     is_enabled = await is_thumbnail_enabled(chat_id)
     text = (
