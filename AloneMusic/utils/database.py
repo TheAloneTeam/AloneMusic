@@ -30,6 +30,8 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
+thumbdb = mongodb.thumbmode
+allthumbdb = mongodb.allthumbmode
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -47,6 +49,8 @@ pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
+thumbnail_mode = {}
+all_thumbnail_mode = {}
 
 
 async def get_assistant_number(chat_id: int) -> str:
@@ -647,3 +651,55 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
+
+
+async def is_thumbnail_enabled(chat_id: int) -> bool:
+    mode = thumbnail_mode.get(chat_id)
+    if mode is None:
+        user = await thumbdb.find_one({"chat_id": chat_id})
+        if not user:
+            thumbnail_mode[chat_id] = True
+            return True
+        thumbnail_mode[chat_id] = False
+        return False
+    return mode
+
+
+async def enable_thumbnail(chat_id: int):
+    thumbnail_mode[chat_id] = True
+    user = await thumbdb.find_one({"chat_id": chat_id})
+    if user:
+        return await thumbdb.delete_one({"chat_id": chat_id})
+
+
+async def disable_thumbnail(chat_id: int):
+    thumbnail_mode[chat_id] = False
+    user = await thumbdb.find_one({"chat_id": chat_id})
+    if not user:
+        return await thumbdb.insert_one({"chat_id": chat_id})
+
+
+async def is_allthumbnail_enabled(chat_id: int) -> bool:
+    mode = all_thumbnail_mode.get(chat_id)
+    if mode is None:
+        user = await allthumbdb.find_one({"chat_id": chat_id})
+        if not user:
+            all_thumbnail_mode[chat_id] = True
+            return True
+        all_thumbnail_mode[chat_id] = False
+        return False
+    return mode
+
+
+async def enable_allthumbnail(chat_id: int):
+    all_thumbnail_mode[chat_id] = True
+    user = await allthumbdb.find_one({"chat_id": chat_id})
+    if user:
+        return await allthumbdb.delete_one({"chat_id": chat_id})
+
+
+async def disable_allthumbnail(chat_id: int):
+    all_thumbnail_mode[chat_id] = False
+    user = await allthumbdb.find_one({"chat_id": chat_id})
+    if not user:
+        return await allthumbdb.insert_one({"chat_id": chat_id})

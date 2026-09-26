@@ -25,6 +25,7 @@ from AloneMusic.utils.database import (
     get_loop,
     group_assistant,
     is_autoend,
+    is_thumbnail_enabled,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
@@ -422,20 +423,28 @@ class Call(PyTgCalls):
                     original_chat_id,
                     text=_["call_6"],
                 )
-            img = await get_thumb(videoid)
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
-                chat_id=original_chat_id,
-                photo=img,
-                has_spoiler=True,
-                caption=_["stream_1"].format(
-                    f"https://t.me/{app.username}?start=info_{videoid}",
-                    title[:23],
-                    check[0]["dur"],
-                    user,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            cap = _["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{videoid}",
+                title[:23],
+                check[0]["dur"],
+                user,
             )
+            if await is_thumbnail_enabled(chat_id):
+                img = await get_thumb(videoid)
+                run = await app.send_photo(
+                    chat_id=original_chat_id,
+                    photo=img,
+                    has_spoiler=True,
+                    caption=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            else:
+                run = await app.send_message(
+                    chat_id=original_chat_id,
+                    text=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
         elif "vid_" in queued:
@@ -459,21 +468,29 @@ class Call(PyTgCalls):
                     original_chat_id,
                     text=_["call_6"],
                 )
-            img = await get_thumb(videoid)
             button = stream_markup(_, chat_id)
             await mystic.delete()
-            run = await app.send_photo(
-                chat_id=original_chat_id,
-                photo=img,
-                has_spoiler=True,
-                caption=_["stream_1"].format(
-                    f"https://t.me/{app.username}?start=info_{videoid}",
-                    title[:23],
-                    check[0]["dur"],
-                    user,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            cap = _["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{videoid}",
+                title[:23],
+                check[0]["dur"],
+                user,
             )
+            if await is_thumbnail_enabled(chat_id):
+                img = await get_thumb(videoid)
+                run = await app.send_photo(
+                    chat_id=original_chat_id,
+                    photo=img,
+                    has_spoiler=True,
+                    caption=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            else:
+                run = await app.send_message(
+                    chat_id=original_chat_id,
+                    text=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
 
@@ -534,20 +551,28 @@ class Call(PyTgCalls):
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "tg"
             else:
-                img = await get_thumb(videoid)
                 button = stream_markup(_, chat_id)
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=img,
-                    has_spoiler=True,
-                    caption=_["stream_1"].format(
-                        f"https://t.me/{app.username}?start=info_{videoid}",
-                        title[:23],
-                        check[0]["dur"],
-                        user,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(button),
+                cap = _["stream_1"].format(
+                    f"https://t.me/{app.username}?start=info_{videoid}",
+                    title[:23],
+                    check[0]["dur"],
+                    user,
                 )
+                if await is_thumbnail_enabled(chat_id):
+                    img = await get_thumb(videoid)
+                    run = await app.send_photo(
+                        chat_id=original_chat_id,
+                        photo=img,
+                        has_spoiler=True,
+                        caption=cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                    )
+                else:
+                    run = await app.send_message(
+                        chat_id=original_chat_id,
+                        text=cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                    )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
 

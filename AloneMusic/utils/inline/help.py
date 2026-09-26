@@ -66,6 +66,12 @@ def help_pannel(_, START: bool | int | None = None):
                     callback_data="help_callback hb9",
                 ),
             ],
+            [
+                InlineKeyboardButton(
+                    text="📸 ᴘʜᴏᴛᴏ",
+                    callback_data="help_callback hb10",
+                ),
+            ],
             mark,
         ]
     )
