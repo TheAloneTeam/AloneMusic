@@ -15,7 +15,11 @@ import config
 from AloneMusic import Carbon, YouTube, app
 from AloneMusic.core.call import Alone
 from AloneMusic.misc import db
-from AloneMusic.utils.database import add_active_video_chat, is_active_chat
+from AloneMusic.utils.database import (
+    add_active_video_chat,
+    is_active_chat,
+    is_thumbnail_enabled,
+)
 from AloneMusic.utils.exceptions import AssistantErr
 from AloneMusic.utils.inline import aq_markup, close_markup, stream_markup
 from AloneMusic.utils.pastebin import AloneBin
@@ -105,20 +109,28 @@ async def stream(
                     "video" if video else "audio",
                     forceplay=forceplay,
                 )
-                img = await get_thumb(vidid)
                 button = stream_markup(_, chat_id)
-                run = await app.send_photo(
-                    original_chat_id,
-                    photo=img,
-                    has_spoiler=True,
-                    caption=_["stream_1"].format(
-                        f"https://t.me/{app.username}?start=info_{vidid}",
-                        title[:23],
-                        duration_min,
-                        user_name,
-                    ),
-                    reply_markup=InlineKeyboardMarkup(button),
+                cap = _["stream_1"].format(
+                    f"https://t.me/{app.username}?start=info_{vidid}",
+                    title[:23],
+                    duration_min,
+                    user_name,
                 )
+                if await is_thumbnail_enabled(chat_id):
+                    img = await get_thumb(vidid)
+                    run = await app.send_photo(
+                        original_chat_id,
+                        photo=img,
+                        has_spoiler=True,
+                        caption=cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                    )
+                else:
+                    run = await app.send_message(
+                        original_chat_id,
+                        text=cap,
+                        reply_markup=InlineKeyboardMarkup(button),
+                    )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
         if count == 0:
@@ -208,20 +220,28 @@ async def stream(
                 "video" if video else "audio",
                 forceplay=forceplay,
             )
-            img = await get_thumb(vidid)
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
-                original_chat_id,
-                photo=img,
-                has_spoiler=True,
-                caption=_["stream_1"].format(
-                    f"https://t.me/{app.username}?start=info_{vidid}",
-                    title[:23],
-                    duration_min,
-                    user_name,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            cap = _["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{vidid}",
+                title[:23],
+                duration_min,
+                user_name,
             )
+            if await is_thumbnail_enabled(chat_id):
+                img = await get_thumb(vidid)
+                run = await app.send_photo(
+                    original_chat_id,
+                    photo=img,
+                    has_spoiler=True,
+                    caption=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            else:
+                run = await app.send_message(
+                    original_chat_id,
+                    text=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
             try:
@@ -421,20 +441,28 @@ async def stream(
                 "video" if video else "audio",
                 forceplay=forceplay,
             )
-            img = await get_thumb(vidid)
             button = stream_markup(_, chat_id)
-            run = await app.send_photo(
-                original_chat_id,
-                photo=img,
-                has_spoiler=True,
-                caption=_["stream_1"].format(
-                    f"https://t.me/{app.username}?start=info_{vidid}",
-                    title[:23],
-                    duration_min,
-                    user_name,
-                ),
-                reply_markup=InlineKeyboardMarkup(button),
+            cap = _["stream_1"].format(
+                f"https://t.me/{app.username}?start=info_{vidid}",
+                title[:23],
+                duration_min,
+                user_name,
             )
+            if await is_thumbnail_enabled(chat_id):
+                img = await get_thumb(vidid)
+                run = await app.send_photo(
+                    original_chat_id,
+                    photo=img,
+                    has_spoiler=True,
+                    caption=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            else:
+                run = await app.send_message(
+                    original_chat_id,
+                    text=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
             try:
