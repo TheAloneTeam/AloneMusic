@@ -679,27 +679,27 @@ async def disable_thumbnail(chat_id: int):
         return await thumbdb.insert_one({"chat_id": chat_id})
 
 
-async def is_allthumbnail_enabled(chat_id: int) -> bool:
-    mode = all_thumbnail_mode.get(chat_id)
+async def is_allthumbnail_enabled(chat_id: int = 0) -> bool:
+    mode = all_thumbnail_mode.get(1234)
     if mode is None:
-        user = await allthumbdb.find_one({"chat_id": chat_id})
+        user = await allthumbdb.find_one({"chat_id": 1234})
         if not user:
-            all_thumbnail_mode[chat_id] = True
+            all_thumbnail_mode[1234] = True
             return True
-        all_thumbnail_mode[chat_id] = False
+        all_thumbnail_mode[1234] = False
         return False
     return mode
 
 
-async def enable_allthumbnail(chat_id: int):
-    all_thumbnail_mode[chat_id] = True
-    user = await allthumbdb.find_one({"chat_id": chat_id})
+async def enable_allthumbnail(chat_id: int = 0):
+    all_thumbnail_mode[1234] = True
+    user = await allthumbdb.find_one({"chat_id": 1234})
     if user:
-        return await allthumbdb.delete_one({"chat_id": chat_id})
+        return await allthumbdb.delete_one({"chat_id": 1234})
 
 
-async def disable_allthumbnail(chat_id: int):
-    all_thumbnail_mode[chat_id] = False
-    user = await allthumbdb.find_one({"chat_id": chat_id})
+async def disable_allthumbnail(chat_id: int = 0):
+    all_thumbnail_mode[1234] = False
+    user = await allthumbdb.find_one({"chat_id": 1234})
     if not user:
-        return await allthumbdb.insert_one({"chat_id": chat_id})
+        return await allthumbdb.insert_one({"chat_id": 1234})
