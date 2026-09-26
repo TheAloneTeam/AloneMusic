@@ -151,7 +151,7 @@ async def play_commnd(
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
-            return await mystic.delete()
+            return
         return
     elif video_telegram:
         if message.reply_to_message.document:
@@ -195,7 +195,7 @@ async def play_commnd(
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
-            return await mystic.delete()
+            return
         return
     elif url:
         if await YouTube.exists(url):
@@ -328,7 +328,7 @@ async def play_commnd(
                 ex_type = type(e).__name__
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
-            return await mystic.delete()
+            return
         else:
             try:
                 await Alone.stream_call(url)
@@ -415,7 +415,6 @@ async def play_commnd(
             ex_type = type(e).__name__
             err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
             return await mystic.edit_text(err)
-        await mystic.delete()
         return await play_logs(message, streamtype=streamtype)
     else:
         if plist_type:
@@ -540,7 +539,7 @@ async def play_music(client, CallbackQuery, _):
         ex_type = type(e).__name__
         err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
         return await mystic.edit_text(err)
-    return await mystic.delete()
+    return
 
 
 @app.on_callback_query(filters.regex("AnonymousAdmin") & ~BANNED_USERS)
@@ -642,7 +641,7 @@ async def play_playlists_command(client, CallbackQuery, _):
         ex_type = type(e).__name__
         err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
         return await mystic.edit_text(err)
-    return await mystic.delete()
+    return
 
 
 @app.on_callback_query(filters.regex("slider") & ~BANNED_USERS)

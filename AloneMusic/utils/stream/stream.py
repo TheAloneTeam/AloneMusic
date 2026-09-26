@@ -132,6 +132,10 @@ async def stream(
                 car = msg
             carbon = await Carbon.generate(car, randint(100, 10000000))
             upl = close_markup(_)
+            try:
+                await mystic.delete()
+            except Exception:
+                pass
             return await app.send_photo(
                 original_chat_id,
                 has_spoiler=True,
@@ -167,11 +171,17 @@ async def stream(
             )
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
-            await app.send_message(
-                chat_id=original_chat_id,
-                text=_["queue_4"].format(position, title[:27], duration_min, user_name),
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+            try:
+                await mystic.edit_text(
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            except Exception:
+                await app.send_message(
+                    chat_id=original_chat_id,
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
         else:
             if not forceplay:
                 db[chat_id] = []
@@ -210,6 +220,10 @@ async def stream(
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
+            try:
+                await mystic.delete()
+            except Exception:
+                pass
     elif streamtype == "soundcloud":
         file_path = result["filepath"]
         title = result["title"]
@@ -228,11 +242,17 @@ async def stream(
             )
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
-            await app.send_message(
-                chat_id=original_chat_id,
-                text=_["queue_4"].format(position, title[:27], duration_min, user_name),
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+            try:
+                await mystic.edit_text(
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            except Exception:
+                await app.send_message(
+                    chat_id=original_chat_id,
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
         else:
             if not forceplay:
                 db[chat_id] = []
@@ -261,6 +281,10 @@ async def stream(
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
+            try:
+                await mystic.delete()
+            except Exception:
+                pass
     elif streamtype == "telegram":
         file_path = result["path"]
         link = result["link"]
@@ -281,11 +305,17 @@ async def stream(
             )
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
-            await app.send_message(
-                chat_id=original_chat_id,
-                text=_["queue_4"].format(position, title[:27], duration_min, user_name),
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+            try:
+                await mystic.edit_text(
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            except Exception:
+                await app.send_message(
+                    chat_id=original_chat_id,
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
         else:
             if not forceplay:
                 db[chat_id] = []
@@ -314,6 +344,10 @@ async def stream(
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
+            try:
+                await mystic.delete()
+            except Exception:
+                pass
     elif streamtype == "live":
         link = result["link"]
         vidid = result["vidid"]
@@ -335,11 +369,17 @@ async def stream(
             )
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
-            await app.send_message(
-                chat_id=original_chat_id,
-                text=_["queue_4"].format(position, title[:27], duration_min, user_name),
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+            try:
+                await mystic.edit_text(
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
+            except Exception:
+                await app.send_message(
+                    chat_id=original_chat_id,
+                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
         else:
             if not forceplay:
                 db[chat_id] = []
@@ -381,6 +421,10 @@ async def stream(
             )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
+            try:
+                await mystic.delete()
+            except Exception:
+                pass
     elif streamtype == "index":
         link = result
         title = "ɪɴᴅᴇx ᴏʀ ᴍ3ᴜ8 ʟɪɴᴋ"
