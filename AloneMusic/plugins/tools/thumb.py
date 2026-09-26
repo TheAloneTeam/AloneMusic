@@ -36,9 +36,7 @@ def thumb_markup(is_enabled: bool):
                 callback_data="toggle_thumb_state",
             )
         ],
-        [
-            InlineKeyboardButton(text="Close", callback_data="close")
-        ]
+        [InlineKeyboardButton(text="Close", callback_data="close")],
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -52,9 +50,7 @@ def allthumb_markup(is_enabled: bool):
                 callback_data="toggle_allthumb_state",
             )
         ],
-        [
-            InlineKeyboardButton(text="Close", callback_data="close")
-        ]
+        [InlineKeyboardButton(text="Close", callback_data="close")],
     ]
     return InlineKeyboardMarkup(buttons)
 
@@ -71,10 +67,14 @@ async def thumb_cmd(client, message: Message, _):
         state = message.command[1].lower()
         if state in ["on", "enable"]:
             await enable_thumbnail(chat_id)
-            return await message.reply_text("» Playback thumbnail has been **Enabled**.")
+            return await message.reply_text(
+                "» Playback thumbnail has been **Enabled**."
+            )
         elif state in ["off", "disable"]:
             await disable_thumbnail(chat_id)
-            return await message.reply_text("» Playback thumbnail has been **Disabled**.")
+            return await message.reply_text(
+                "» Playback thumbnail has been **Disabled**."
+            )
 
     is_enabled = await is_thumbnail_enabled(chat_id)
     text = (
@@ -85,7 +85,10 @@ async def thumb_cmd(client, message: Message, _):
 
 
 @app.on_message(
-    (filters.command(["allthumb", "allthumbnail"]) | filters.regex(r"^(allthumb|allthumbnail)$"))
+    (
+        filters.command(["allthumb", "allthumbnail"])
+        | filters.regex(r"^(allthumb|allthumbnail)$")
+    )
     & ~BANNED_USERS
 )
 async def allthumb_cmd(client, message: Message):
@@ -97,10 +100,14 @@ async def allthumb_cmd(client, message: Message):
         state = message.command[1].lower()
         if state in ["on", "enable"]:
             await enable_allthumbnail(chat_id)
-            return await message.reply_text("» All bot photo thumbnails have been **Enabled**.")
+            return await message.reply_text(
+                "» All bot photo thumbnails have been **Enabled**."
+            )
         elif state in ["off", "disable"]:
             await disable_allthumbnail(chat_id)
-            return await message.reply_text("» All bot photo thumbnails have been **Disabled**.")
+            return await message.reply_text(
+                "» All bot photo thumbnails have been **Disabled**."
+            )
 
     is_enabled = await is_allthumbnail_enabled(chat_id)
     text = (
@@ -147,10 +154,14 @@ async def thumb_more_cb(client, CallbackQuery, _):
         [
             [
                 InlineKeyboardButton(text="Thumbnail", callback_data="thumb_text_noop"),
-                InlineKeyboardButton(text=status_btn, callback_data=f"THUMB_TOGGLE_MORE|{chat_id}"),
+                InlineKeyboardButton(
+                    text=status_btn, callback_data=f"THUMB_TOGGLE_MORE|{chat_id}"
+                ),
             ],
             [
-                InlineKeyboardButton(text="⬅️ Back", callback_data=f"THUMB_BACK|{chat_id}"),
+                InlineKeyboardButton(
+                    text="⬅️ Back", callback_data=f"THUMB_BACK|{chat_id}"
+                ),
             ],
         ]
     )
@@ -184,10 +195,14 @@ async def thumb_toggle_more_cb(client, CallbackQuery, _):
         [
             [
                 InlineKeyboardButton(text="Thumbnail", callback_data="thumb_text_noop"),
-                InlineKeyboardButton(text=status_btn, callback_data=f"THUMB_TOGGLE_MORE|{chat_id}"),
+                InlineKeyboardButton(
+                    text=status_btn, callback_data=f"THUMB_TOGGLE_MORE|{chat_id}"
+                ),
             ],
             [
-                InlineKeyboardButton(text="⬅️ Back", callback_data=f"THUMB_BACK|{chat_id}"),
+                InlineKeyboardButton(
+                    text="⬅️ Back", callback_data=f"THUMB_BACK|{chat_id}"
+                ),
             ],
         ]
     )
@@ -201,10 +216,13 @@ async def thumb_toggle_more_cb(client, CallbackQuery, _):
 @languageCB
 async def thumb_back_cb(client, CallbackQuery, _):
     from AloneMusic.utils.inline.play import stream_markup
+
     chat_id = int(CallbackQuery.data.split("|")[1])
     button = stream_markup(_, chat_id)
     try:
-        await CallbackQuery.edit_message_reply_markup(reply_markup=InlineKeyboardMarkup(button))
+        await CallbackQuery.edit_message_reply_markup(
+            reply_markup=InlineKeyboardMarkup(button)
+        )
     except Exception:
         pass
 
@@ -220,13 +238,17 @@ async def thumb_text_noop_cb(client, CallbackQuery):
 @app.on_callback_query(filters.regex("toggle_allthumb_state") & ~BANNED_USERS)
 async def toggle_allthumb_cb(client, CallbackQuery):
     if CallbackQuery.from_user.id != config.OWNER_ID:
-        return await CallbackQuery.answer("Only Bot Owner can toggle this.", show_alert=True)
+        return await CallbackQuery.answer(
+            "Only Bot Owner can toggle this.", show_alert=True
+        )
 
     chat_id = CallbackQuery.message.chat.id
     is_enabled = await is_allthumbnail_enabled(chat_id)
     if is_enabled:
         await disable_allthumbnail(chat_id)
-        await CallbackQuery.answer("All bot photo thumbnails disabled.", show_alert=True)
+        await CallbackQuery.answer(
+            "All bot photo thumbnails disabled.", show_alert=True
+        )
     else:
         await enable_allthumbnail(chat_id)
         await CallbackQuery.answer("All bot photo thumbnails enabled.", show_alert=True)
