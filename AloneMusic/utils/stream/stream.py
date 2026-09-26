@@ -173,13 +173,17 @@ async def stream(
             button = aq_markup(_, chat_id)
             try:
                 await mystic.edit_text(
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
                 await app.send_message(
                     chat_id=original_chat_id,
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
         else:
@@ -251,13 +255,17 @@ async def stream(
             button = aq_markup(_, chat_id)
             try:
                 await mystic.edit_text(
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
                 await app.send_message(
                     chat_id=original_chat_id,
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
         else:
@@ -282,7 +290,9 @@ async def stream(
             )
             try:
                 run = await mystic.edit_media(
-                    media=InputMediaPhoto(config.SOUNCLOUD_IMG_URL, caption=caption, has_spoiler=True),
+                    media=InputMediaPhoto(
+                        config.SOUNCLOUD_IMG_URL, caption=caption, has_spoiler=True
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
@@ -321,13 +331,17 @@ async def stream(
             button = aq_markup(_, chat_id)
             try:
                 await mystic.edit_text(
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
                 await app.send_message(
                     chat_id=original_chat_id,
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
         else:
@@ -393,13 +407,17 @@ async def stream(
             button = aq_markup(_, chat_id)
             try:
                 await mystic.edit_text(
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
                 await app.send_message(
                     chat_id=original_chat_id,
-                    text=_["queue_4"].format(position, title[:27], duration_min, user_name),
+                    text=_["queue_4"].format(
+                        position, title[:27], duration_min, user_name
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
         else:
@@ -499,7 +517,9 @@ async def stream(
             caption = _["stream_2"].format(user_name)
             try:
                 run = await mystic.edit_media(
-                    media=InputMediaPhoto(config.STREAM_IMG_URL, caption=caption, has_spoiler=True),
+                    media=InputMediaPhoto(
+                        config.STREAM_IMG_URL, caption=caption, has_spoiler=True
+                    ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
