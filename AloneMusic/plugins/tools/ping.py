@@ -15,6 +15,7 @@ from pyrogram.types import Message
 from AloneMusic import app
 from AloneMusic.core.call import Alone
 from AloneMusic.utils import bot_sys_stats
+from AloneMusic.utils.database import is_allthumbnail_enabled
 from AloneMusic.utils.decorators.language import language
 from AloneMusic.utils.inline import supp_markup
 from config import BANNED_USERS, PING_IMG_URL
@@ -24,10 +25,15 @@ from config import BANNED_USERS, PING_IMG_URL
 @language
 async def ping_com(client, message: Message, _):
     start = datetime.now()
-    response = await message.reply_photo(
-        photo=PING_IMG_URL,
-        caption=_["ping_1"].format(app.mention),
-    )
+    if await is_allthumbnail_enabled(message.chat.id):
+        response = await message.reply_photo(
+            photo=PING_IMG_URL,
+            caption=_["ping_1"].format(app.mention),
+        )
+    else:
+        response = await message.reply_text(
+            text=_["ping_1"].format(app.mention),
+        )
     pytgping = await Alone.ping()
     UP, CPU, RAM, DISK = await bot_sys_stats()
     resp = (datetime.now() - start).microseconds / 1000
