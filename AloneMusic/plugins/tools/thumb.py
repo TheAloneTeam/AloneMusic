@@ -245,7 +245,9 @@ async def toggle_allthumb_cb(client, CallbackQuery):
         )
     else:
         await enable_allthumbnail()
-        await CallbackQuery.answer("All bot photo thumbnails enabled globally.", show_alert=True)
+        await CallbackQuery.answer(
+            "All bot photo thumbnails enabled globally.", show_alert=True
+        )
 
     new_state = await is_allthumbnail_enabled()
     try:
