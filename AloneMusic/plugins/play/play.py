@@ -214,7 +214,6 @@ async def play_commnd(
                     plist_id = (url.split("=")[1]).split("&")[0]
                 else:
                     plist_id = url.split("=")[1]
-                img = config.PLAYLIST_IMG_URL
                 cap = _["play_9"]
             else:
                 try:
@@ -222,7 +221,7 @@ async def play_commnd(
                 except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
-                img = details["thumb"]
+                details["thumb"]
                 cap = _["play_10"].format(
                     details["title"],
                     details["duration_min"],
@@ -239,7 +238,7 @@ async def play_commnd(
                 except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
-                img = details["thumb"]
+                details["thumb"]
                 cap = _["play_10"].format(details["title"], details["duration_min"])
             elif "playlist" in url:
                 try:
@@ -248,7 +247,6 @@ async def play_commnd(
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "spplay"
-                img = config.SPOTIFY_PLAYLIST_IMG_URL
                 cap = _["play_11"].format(app.mention, message.from_user.mention)
             elif "album" in url:
                 try:
@@ -257,7 +255,6 @@ async def play_commnd(
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "spalbum"
-                img = config.SPOTIFY_ALBUM_IMG_URL
                 cap = _["play_11"].format(app.mention, message.from_user.mention)
             elif "artist" in url:
                 try:
@@ -266,7 +263,6 @@ async def play_commnd(
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "playlist"
                 plist_type = "spartist"
-                img = config.SPOTIFY_ARTIST_IMG_URL
                 cap = _["play_11"].format(message.from_user.first_name)
             else:
                 return await mystic.edit_text(_["play_15"])
@@ -277,7 +273,7 @@ async def play_commnd(
                 except:
                     return await mystic.edit_text(_["play_3"])
                 streamtype = "youtube"
-                img = details["thumb"]
+                details["thumb"]
                 cap = _["play_10"].format(details["title"], details["duration_min"])
             elif "playlist" in url:
                 spotify = True
@@ -288,7 +284,6 @@ async def play_commnd(
                 streamtype = "playlist"
                 plist_type = "apple"
                 cap = _["play_12"].format(app.mention, message.from_user.mention)
-                img = url
             else:
                 return await mystic.edit_text(_["play_3"])
         elif await Resso.valid(url):
@@ -297,7 +292,7 @@ async def play_commnd(
             except:
                 return await mystic.edit_text(_["play_3"])
             streamtype = "youtube"
-            img = details["thumb"]
+            details["thumb"]
             cap = _["play_10"].format(details["title"], details["duration_min"])
         elif await SoundCloud.valid(url):
             try:
