@@ -431,11 +431,8 @@ async def play_commnd(
                 "c" if channel else "g",
                 "f" if fplay else "d",
             )
-            await mystic.delete()
-            await message.reply_photo(
-                photo=img,
-                has_spoiler=True,
-                caption=cap,
+            await mystic.edit_text(
+                text=cap,
                 reply_markup=InlineKeyboardMarkup(buttons),
             )
             return await play_logs(message, streamtype=f"Playlist : {plist_type}")
@@ -450,11 +447,8 @@ async def play_commnd(
                     "c" if channel else "g",
                     "f" if fplay else "d",
                 )
-                await mystic.delete()
-                await message.reply_photo(
-                    photo=details["thumb"],
-                    has_spoiler=True,
-                    caption=_["play_10"].format(
+                await mystic.edit_text(
+                    text=_["play_10"].format(
                         details["title"].title(),
                         details["duration_min"],
                     ),
@@ -469,10 +463,8 @@ async def play_commnd(
                     "c" if channel else "g",
                     "f" if fplay else "d",
                 )
-                await mystic.delete()
-                await message.reply_photo(
-                    photo=img,
-                    caption=cap,
+                await mystic.edit_text(
+                    text=cap,
                     reply_markup=InlineKeyboardMarkup(buttons),
                 )
                 return await play_logs(message, streamtype="URL Searched Inline")
@@ -495,13 +487,17 @@ async def play_music(client, CallbackQuery, _):
         return
     user_name = CallbackQuery.from_user.first_name
     try:
-        await CallbackQuery.message.delete()
         await CallbackQuery.answer()
     except:
         pass
-    mystic = await CallbackQuery.message.reply_text(
-        _["play_2"].format(channel) if channel else _["play_1"]
-    )
+    try:
+        mystic = await CallbackQuery.edit_message_text(
+            _["play_2"].format(channel) if channel else _["play_1"]
+        )
+    except:
+        mystic = await CallbackQuery.message.reply_text(
+            _["play_2"].format(channel) if channel else _["play_1"]
+        )
     try:
         details, track_id = await YouTube.track(vidid, True)
     except:
@@ -581,14 +577,18 @@ async def play_playlists_command(client, CallbackQuery, _):
     except:
         return
     user_name = CallbackQuery.from_user.first_name
-    await CallbackQuery.message.delete()
     try:
         await CallbackQuery.answer()
     except:
         pass
-    mystic = await CallbackQuery.message.reply_text(
-        _["play_2"].format(channel) if channel else _["play_1"]
-    )
+    try:
+        mystic = await CallbackQuery.edit_message_text(
+            _["play_2"].format(channel) if channel else _["play_1"]
+        )
+    except:
+        mystic = await CallbackQuery.message.reply_text(
+            _["play_2"].format(channel) if channel else _["play_1"]
+        )
     videoid = lyrical.get(videoid)
     video = True if mode == "v" else None
     ffplay = True if fplay == "f" else None
