@@ -67,7 +67,7 @@ def allthumb_markup(is_enabled: bool):
 @AdminActual
 async def thumb_cmd(client, message: Message, _):
     chat_id = message.chat.id
-    if len(message.command) > 1:
+    if message.command and len(message.command) > 1:
         state = message.command[1].lower()
         if state in ["on", "enable"]:
             await enable_thumbnail(chat_id)
@@ -89,11 +89,11 @@ async def thumb_cmd(client, message: Message, _):
     & ~BANNED_USERS
 )
 async def allthumb_cmd(client, message: Message):
-    if message.from_user.id != config.OWNER_ID:
+    if not message.from_user or message.from_user.id != config.OWNER_ID:
         return await message.reply_text("» Only Bot Owner can use this command.")
 
     chat_id = message.chat.id
-    if len(message.command) > 1:
+    if message.command and len(message.command) > 1:
         state = message.command[1].lower()
         if state in ["on", "enable"]:
             await enable_allthumbnail(chat_id)
