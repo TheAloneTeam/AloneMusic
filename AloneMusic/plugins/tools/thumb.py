@@ -91,21 +91,20 @@ async def allthumb_cmd(client, message: Message):
     if not message.from_user or message.from_user.id != config.OWNER_ID:
         return await message.reply_text("» Only Bot Owner can use this command.")
 
-    chat_id = message.chat.id
     if message.command and len(message.command) > 1:
         state = message.command[1].lower()
         if state in ["on", "enable"]:
-            await enable_allthumbnail(chat_id)
+            await enable_allthumbnail()
             return await message.reply_text(
                 "» All bot photo thumbnails have been Enabled."
             )
         elif state in ["off", "disable"]:
-            await disable_allthumbnail(chat_id)
+            await disable_allthumbnail()
             return await message.reply_text(
                 "» All bot photo thumbnails have been Disable."
             )
 
-    is_enabled = await is_allthumbnail_enabled(chat_id)
+    is_enabled = await is_allthumbnail_enabled()
     text = (
         "<b><u>All Bot Thumbnails Settings</u></b>\n\n"
         "Here you can enable or disable all bot photo messages (start, ping, etc.)."
@@ -238,18 +237,17 @@ async def toggle_allthumb_cb(client, CallbackQuery):
             "Only Bot Owner can toggle this.", show_alert=True
         )
 
-    chat_id = CallbackQuery.message.chat.id
-    is_enabled = await is_allthumbnail_enabled(chat_id)
+    is_enabled = await is_allthumbnail_enabled()
     if is_enabled:
-        await disable_allthumbnail(chat_id)
+        await disable_allthumbnail()
         await CallbackQuery.answer(
-            "All bot photo thumbnails disabled.", show_alert=True
+            "All bot photo thumbnails disabled globally.", show_alert=True
         )
     else:
-        await enable_allthumbnail(chat_id)
-        await CallbackQuery.answer("All bot photo thumbnails enabled.", show_alert=True)
+        await enable_allthumbnail()
+        await CallbackQuery.answer("All bot photo thumbnails enabled globally.", show_alert=True)
 
-    new_state = await is_allthumbnail_enabled(chat_id)
+    new_state = await is_allthumbnail_enabled()
     try:
         await CallbackQuery.edit_message_reply_markup(
             reply_markup=allthumb_markup(new_state)
