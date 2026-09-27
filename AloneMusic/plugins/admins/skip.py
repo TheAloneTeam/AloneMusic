@@ -14,7 +14,7 @@ import config
 from AloneMusic import YouTube, app
 from AloneMusic.core.call import Alone
 from AloneMusic.misc import db
-from AloneMusic.utils.database import get_loop, is_thumbnail_enabled
+from AloneMusic.utils.database import get_loop
 from AloneMusic.utils.decorators import AdminRightsCheck
 from AloneMusic.utils.inline import close_markup, stream_markup
 from AloneMusic.utils.stream.autoclear import auto_clean
@@ -141,19 +141,13 @@ async def skip(cli, message: Message, _, chat_id):
             check[0]["dur"],
             user,
         )
-        if await is_thumbnail_enabled(chat_id):
-            img = await get_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
-                has_spoiler=True,
-                caption=cap,
-                reply_markup=InlineKeyboardMarkup(button),
-            )
-        else:
-            run = await message.reply_text(
-                text=cap,
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+        img = await get_thumb(videoid)
+        run = await message.reply_photo(
+            photo=img,
+            has_spoiler=True,
+            caption=cap,
+            reply_markup=InlineKeyboardMarkup(button),
+        )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "tg"
     elif "vid_" in queued:
@@ -183,19 +177,13 @@ async def skip(cli, message: Message, _, chat_id):
             check[0]["dur"],
             user,
         )
-        if await is_thumbnail_enabled(chat_id):
-            img = await get_thumb(videoid)
-            run = await message.reply_photo(
-                photo=img,
-                has_spoiler=True,
-                caption=cap,
-                reply_markup=InlineKeyboardMarkup(button),
-            )
-        else:
-            run = await message.reply_text(
-                text=cap,
-                reply_markup=InlineKeyboardMarkup(button),
-            )
+        img = await get_thumb(videoid)
+        run = await message.reply_photo(
+            photo=img,
+            has_spoiler=True,
+            caption=cap,
+            reply_markup=InlineKeyboardMarkup(button),
+        )
         db[chat_id][0]["mystic"] = run
         db[chat_id][0]["markup"] = "stream"
         await mystic.delete()
@@ -267,18 +255,12 @@ async def skip(cli, message: Message, _, chat_id):
                 check[0]["dur"],
                 user,
             )
-            if await is_thumbnail_enabled(chat_id):
-                img = await get_thumb(videoid)
-                run = await message.reply_photo(
-                    photo=img,
-                    has_spoiler=True,
-                    caption=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
-            else:
-                run = await message.reply_text(
-                    text=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
+            img = await get_thumb(videoid)
+            run = await message.reply_photo(
+                photo=img,
+                has_spoiler=True,
+                caption=cap,
+                reply_markup=InlineKeyboardMarkup(button),
+            )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"

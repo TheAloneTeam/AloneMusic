@@ -25,7 +25,6 @@ from AloneMusic.utils.database import (
     get_loop,
     group_assistant,
     is_autoend,
-    is_thumbnail_enabled,
     music_on,
     remove_active_chat,
     remove_active_video_chat,
@@ -430,21 +429,14 @@ class Call(PyTgCalls):
                 check[0]["dur"],
                 user,
             )
-            if await is_thumbnail_enabled(chat_id):
-                img = await get_thumb(videoid)
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=img,
-                    has_spoiler=True,
-                    caption=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
-            else:
-                run = await app.send_message(
-                    chat_id=original_chat_id,
-                    text=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
+            img = await get_thumb(videoid)
+            run = await app.send_photo(
+                chat_id=original_chat_id,
+                photo=img,
+                has_spoiler=True,
+                caption=cap,
+                reply_markup=InlineKeyboardMarkup(button),
+            )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "tg"
         elif "vid_" in queued:
@@ -476,21 +468,14 @@ class Call(PyTgCalls):
                 check[0]["dur"],
                 user,
             )
-            if await is_thumbnail_enabled(chat_id):
-                img = await get_thumb(videoid)
-                run = await app.send_photo(
-                    chat_id=original_chat_id,
-                    photo=img,
-                    has_spoiler=True,
-                    caption=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
-            else:
-                run = await app.send_message(
-                    chat_id=original_chat_id,
-                    text=cap,
-                    reply_markup=InlineKeyboardMarkup(button),
-                )
+            img = await get_thumb(videoid)
+            run = await app.send_photo(
+                chat_id=original_chat_id,
+                photo=img,
+                has_spoiler=True,
+                caption=cap,
+                reply_markup=InlineKeyboardMarkup(button),
+            )
             db[chat_id][0]["mystic"] = run
             db[chat_id][0]["markup"] = "stream"
 
@@ -558,21 +543,14 @@ class Call(PyTgCalls):
                     check[0]["dur"],
                     user,
                 )
-                if await is_thumbnail_enabled(chat_id):
-                    img = await get_thumb(videoid)
-                    run = await app.send_photo(
-                        chat_id=original_chat_id,
-                        photo=img,
-                        has_spoiler=True,
-                        caption=cap,
-                        reply_markup=InlineKeyboardMarkup(button),
-                    )
-                else:
-                    run = await app.send_message(
-                        chat_id=original_chat_id,
-                        text=cap,
-                        reply_markup=InlineKeyboardMarkup(button),
-                    )
+                img = await get_thumb(videoid)
+                run = await app.send_photo(
+                    chat_id=original_chat_id,
+                    photo=img,
+                    has_spoiler=True,
+                    caption=cap,
+                    reply_markup=InlineKeyboardMarkup(button),
+                )
                 db[chat_id][0]["mystic"] = run
                 db[chat_id][0]["markup"] = "stream"
 
