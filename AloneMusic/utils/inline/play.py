@@ -36,7 +36,8 @@ def stream_markup_timer(_, chat_id, played, dur):
     duration_sec = time_to_seconds(dur)
 
     remaining_sec = duration_sec - played_sec
-    remaining_sec = max(remaining_sec, 0)
+    if remaining_sec < 0:
+        remaining_sec = 0
 
     rem_min = remaining_sec // 60
     rem_sec = remaining_sec % 60
@@ -80,10 +81,7 @@ def stream_markup_timer(_, chat_id, played, dur):
             InlineKeyboardButton(text="↻", callback_data=f"ADMIN Replay|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
-        [
-            InlineKeyboardButton(text="🔍 More", callback_data=f"THUMB_MORE|{chat_id}"),
-            InlineKeyboardButton(text="ᴄʟᴏsᴇ", callback_data="close"),
-        ],
+        [InlineKeyboardButton(text="ᴄʟᴏsᴇ", callback_data="close")],
     ]
     return buttons
 
@@ -97,10 +95,7 @@ def stream_markup(_, chat_id):
             InlineKeyboardButton(text="‣‣I", callback_data=f"ADMIN Skip|{chat_id}"),
             InlineKeyboardButton(text="▢", callback_data=f"ADMIN Stop|{chat_id}"),
         ],
-        [
-            InlineKeyboardButton(text="🔍 More", callback_data=f"THUMB_MORE|{chat_id}"),
-            InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close"),
-        ],
+        [InlineKeyboardButton(text=_["CLOSE_BUTTON"], callback_data="close")],
     ]
     return buttons
 
@@ -110,11 +105,11 @@ def playlist_markup(_, videoid, user_id, ptype, channel, fplay):
         [
             InlineKeyboardButton(
                 text=_["P_B_1"],
-                callback_data=f"AlonePlaylists {videoid}|{user_id}|{ptype}|a|{channel}|{fplay}",
+                callback_data=f"AnonyPlaylists {videoid}|{user_id}|{ptype}|a|{channel}|{fplay}",
             ),
             InlineKeyboardButton(
                 text=_["P_B_2"],
-                callback_data=f"AlonePlaylists {videoid}|{user_id}|{ptype}|v|{channel}|{fplay}",
+                callback_data=f"AnonyPlaylists {videoid}|{user_id}|{ptype}|v|{channel}|{fplay}",
             ),
         ],
         [
