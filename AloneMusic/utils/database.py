@@ -30,7 +30,6 @@ playtypedb = mongodb.playtypedb
 skipdb = mongodb.skipmode
 sudoersdb = mongodb.sudoers
 usersdb = mongodb.tgusersdb
-thumbdb = mongodb.thumbmode
 
 # Shifting to memory [mongo sucks often]
 active = []
@@ -48,7 +47,6 @@ pause = {}
 playmode = {}
 playtype = {}
 skipmode = {}
-thumbnail_mode = {}
 
 
 async def get_assistant_number(chat_id: int) -> str:
@@ -651,27 +649,3 @@ async def remove_banned_user(user_id: int):
     return await blockeddb.delete_one({"user_id": user_id})
 
 
-async def is_thumbnail_enabled(chat_id: int) -> bool:
-    mode = thumbnail_mode.get(chat_id)
-    if mode is None:
-        user = await thumbdb.find_one({"chat_id": chat_id})
-        if not user:
-            thumbnail_mode[chat_id] = True
-            return True
-        thumbnail_mode[chat_id] = False
-        return False
-    return mode
-
-
-async def enable_thumbnail(chat_id: int):
-    thumbnail_mode[chat_id] = True
-    user = await thumbdb.find_one({"chat_id": chat_id})
-    if user:
-        return await thumbdb.delete_one({"chat_id": chat_id})
-
-
-async def disable_thumbnail(chat_id: int):
-    thumbnail_mode[chat_id] = False
-    user = await thumbdb.find_one({"chat_id": chat_id})
-    if not user:
-        return await thumbdb.insert_one({"chat_id": chat_id})
