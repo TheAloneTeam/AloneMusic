@@ -8,7 +8,6 @@
 import asyncio
 import os
 from datetime import datetime, timedelta
-from typing import Union
 
 from ntgcalls import ConnectionNotFound, TelegramServerError
 from pyrogram import Client
@@ -19,15 +18,21 @@ from pytgcalls.pytgcalls_session import PyTgCallsSession
 import config
 from AloneMusic import LOGGER, YouTube, app
 from AloneMusic.misc import db
-from AloneMusic.utils.database import (add_active_chat, add_active_video_chat,
-                                       get_lang, get_loop, group_assistant,
-                                       is_autoend, music_on,
-                                       remove_active_chat,
-                                       remove_active_video_chat, set_loop)
+from AloneMusic.utils.database import (
+    add_active_chat,
+    add_active_video_chat,
+    get_lang,
+    get_loop,
+    group_assistant,
+    is_autoend,
+    music_on,
+    remove_active_chat,
+    remove_active_video_chat,
+    set_loop,
+)
 from AloneMusic.utils.errors import capture_internal_err
 from AloneMusic.utils.exceptions import AssistantErr
-from AloneMusic.utils.formatters import (check_duration, seconds_to_min,
-                                         speed_converter)
+from AloneMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
 from AloneMusic.utils.inline.play import stream_markup
 from AloneMusic.utils.stream.autoclear import auto_clean
 from AloneMusic.utils.thumbnails import get_thumb
@@ -259,8 +264,8 @@ class Call(PyTgCalls):
         self,
         chat_id: int,
         link: str,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+        video: bool | str | None = None,
+        image: bool | str | None = None,
     ):
         assistant = await group_assistant(self, chat_id)
         stream = self._build_stream(link, video=bool(video))
@@ -295,8 +300,8 @@ class Call(PyTgCalls):
         chat_id: int,
         original_chat_id: int,
         link,
-        video: Union[bool, str] = None,
-        image: Union[bool, str] = None,
+        video: bool | str | None = None,
+        image: bool | str | None = None,
     ):
         assistant = await group_assistant(self, chat_id)
         language = await get_lang(chat_id)
@@ -401,7 +406,7 @@ class Call(PyTgCalls):
             db[chat_id][0]["seconds"] = check[0]["old_second"]
             db[chat_id][0]["speed_path"] = None
             db[chat_id][0]["speed"] = 1.0
-        video = True if str(streamtype) == "video" else False
+        video = str(streamtype) == "video"
         if "live_" in queued:
             n, link = await YouTube.video(videoid, True)
             if n == 0:
@@ -436,7 +441,7 @@ class Call(PyTgCalls):
         elif "vid_" in queued:
             mystic = await app.send_message(original_chat_id, _["call_7"])
             try:
-                file_path, direct = await YouTube.download(
+                file_path, _direct = await YouTube.download(
                     videoid,
                     mystic,
                     videoid=True,
