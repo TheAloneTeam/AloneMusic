@@ -23,7 +23,6 @@ from AloneMusic.utils.database import (
     add_served_user,
     blacklisted_chats,
     get_lang,
-    is_allthumbnail_enabled,
     is_banned_user,
     is_on_off,
 )
@@ -50,18 +49,12 @@ async def start_pm(client, message: Message, _):
         name = message.text.split(None, 1)[1]
         if name[0:4] == "help":
             keyboard = help_pannel(_)
-            if await is_allthumbnail_enabled(message.chat.id):
-                return await message.reply_photo(
-                    photo=config.START_IMG_URL,
-                    has_spoiler=True,
-                    caption=_["help_1"].format(config.SUPPORT_CHAT),
-                    reply_markup=keyboard,
-                )
-            else:
-                return await message.reply_text(
-                    text=_["help_1"].format(config.SUPPORT_CHAT),
-                    reply_markup=keyboard,
-                )
+            return await message.reply_photo(
+                photo=config.START_IMG_URL,
+                has_spoiler=True,
+                caption=_["help_1"].format(config.SUPPORT_CHAT),
+                reply_markup=keyboard,
+            )
         if name[0:3] == "sud":
             await sudoers_list(client=client, message=message, _=_)
             if await is_on_off(2):
@@ -110,19 +103,13 @@ async def start_pm(client, message: Message, _):
                 )
     else:
         out = private_panel(_)
-        if await is_allthumbnail_enabled(message.chat.id):
-            await message.reply_photo(
-                photo=config.START_IMG_URL,
-                has_spoiler=True,
-                message_effect_id=random.choice(EFFECT_ID),
-                caption=_["start_2"].format(message.from_user.mention, app.mention),
-                reply_markup=InlineKeyboardMarkup(out),
-            )
-        else:
-            await message.reply_text(
-                text=_["start_2"].format(message.from_user.mention, app.mention),
-                reply_markup=InlineKeyboardMarkup(out),
-            )
+        await message.reply_photo(
+            photo=config.START_IMG_URL,
+            has_spoiler=True,
+            message_effect_id=random.choice(EFFECT_ID),
+            caption=_["start_2"].format(message.from_user.mention, app.mention),
+            reply_markup=InlineKeyboardMarkup(out),
+        )
         if await is_on_off(2):
             return await app.send_message(
                 chat_id=config.LOGGER_ID,
@@ -136,18 +123,12 @@ async def start_gp(client, message: Message, _):
     out = start_panel(_)
     uptime = int(time.time() - _boot_)
     cap = _["start_1"].format(app.mention, get_readable_time(uptime))
-    if await is_allthumbnail_enabled(message.chat.id):
-        await message.reply_photo(
-            photo=config.START_IMG_URL,
-            has_spoiler=True,
-            caption=cap,
-            reply_markup=InlineKeyboardMarkup(out),
-        )
-    else:
-        await message.reply_text(
-            text=cap,
-            reply_markup=InlineKeyboardMarkup(out),
-        )
+    await message.reply_photo(
+        photo=config.START_IMG_URL,
+        has_spoiler=True,
+        caption=cap,
+        reply_markup=InlineKeyboardMarkup(out),
+    )
     return await add_served_chat(message.chat.id)
 
 

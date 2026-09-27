@@ -14,7 +14,7 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
 from AloneMusic.utils import help_pannel
-from AloneMusic.utils.database import get_lang, is_allthumbnail_enabled
+from AloneMusic.utils.database import get_lang
 from AloneMusic.utils.decorators.language import LanguageStart, languageCB
 from AloneMusic.utils.inline.help import help_back_markup, private_help_panel
 from config import BANNED_USERS, START_IMG_URL, SUPPORT_CHAT
@@ -46,18 +46,12 @@ async def helper_private(client: app, update: types.Message | types.CallbackQuer
         _ = get_string(language)
         keyboard = help_pannel(_)
         cap = _["help_1"].format(SUPPORT_CHAT)
-        if await is_allthumbnail_enabled(update.chat.id):
-            await update.reply_photo(
-                photo=START_IMG_URL,
-                has_spoiler=True,
-                caption=cap,
-                reply_markup=keyboard,
-            )
-        else:
-            await update.reply_text(
-                text=cap,
-                reply_markup=keyboard,
-            )
+        await update.reply_photo(
+            photo=START_IMG_URL,
+            has_spoiler=True,
+            caption=cap,
+            reply_markup=keyboard,
+        )
 
 
 @app.on_message(filters.command(["help"]) & filters.group & ~BANNED_USERS)

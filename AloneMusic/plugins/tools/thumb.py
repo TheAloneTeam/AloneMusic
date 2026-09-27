@@ -10,15 +10,11 @@
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-import config
 from AloneMusic import app
 from AloneMusic.misc import SUDOERS
 from AloneMusic.utils.database import (
-    disable_allthumbnail,
     disable_thumbnail,
-    enable_allthumbnail,
     enable_thumbnail,
-    is_allthumbnail_enabled,
     is_nonadmin_chat,
     is_thumbnail_enabled,
 )
@@ -34,20 +30,6 @@ def thumb_markup(is_enabled: bool):
             InlineKeyboardButton(
                 text=f"Thumbnail : {status_text}",
                 callback_data="toggle_thumb_state",
-            )
-        ],
-        [InlineKeyboardButton(text="Close", callback_data="close")],
-    ]
-    return InlineKeyboardMarkup(buttons)
-
-
-def allthumb_markup(is_enabled: bool):
-    status_text = "✨ Enable" if is_enabled else "❌ Disable"
-    buttons = [
-        [
-            InlineKeyboardButton(
-                text=f"All Thumbnails : {status_text}",
-                callback_data="toggle_allthumb_state",
             )
         ],
         [InlineKeyboardButton(text="Close", callback_data="close")],
@@ -78,38 +60,6 @@ async def thumb_cmd(client, message: Message, _):
         "Here you can enable or disable play command thumbnail images."
     )
     await message.reply_text(text, reply_markup=thumb_markup(is_enabled))
-
-
-@app.on_message(
-    (
-        filters.command(["allthumb", "allthumbnail"])
-        | filters.regex(r"^(allthumb|allthumbnail)$")
-    )
-    & ~BANNED_USERS
-)
-async def allthumb_cmd(client, message: Message):
-    if not message.from_user or message.from_user.id != config.OWNER_ID:
-        return await message.reply_text("» Only Bot Owner can use this command.")
-
-    if message.command and len(message.command) > 1:
-        state = message.command[1].lower()
-        if state in ["on", "enable"]:
-            await enable_allthumbnail()
-            return await message.reply_text(
-                "» All bot photo thumbnails have been Enabled."
-            )
-        elif state in ["off", "disable"]:
-            await disable_allthumbnail()
-            return await message.reply_text(
-                "» All bot photo thumbnails have been Disable."
-            )
-
-    is_enabled = await is_allthumbnail_enabled()
-    text = (
-        "<b><u>All Bot Thumbnails Settings</u></b>\n\n"
-        "Here you can enable or disable all bot photo messages (start, ping, etc.)."
-    )
-    await message.reply_text(text, reply_markup=allthumb_markup(is_enabled))
 
 
 @app.on_callback_query(filters.regex("toggle_thumb_state") & ~BANNED_USERS)
@@ -226,33 +176,5 @@ async def thumb_back_cb(client, CallbackQuery, _):
 async def thumb_text_noop_cb(client, CallbackQuery):
     try:
         await CallbackQuery.answer("Thumbnail Settings", show_alert=False)
-    except Exception:
-        pass
-
-
-@app.on_callback_query(filters.regex("toggle_allthumb_state") & ~BANNED_USERS)
-async def toggle_allthumb_cb(client, CallbackQuery):
-    if CallbackQuery.from_user.id != config.OWNER_ID:
-        return await CallbackQuery.answer(
-            "Only Bot Owner can toggle this.", show_alert=True
-        )
-
-    is_enabled = await is_allthumbnail_enabled()
-    if is_enabled:
-        await disable_allthumbnail()
-        await CallbackQuery.answer(
-            "All bot photo thumbnails disabled globally.", show_alert=True
-        )
-    else:
-        await enable_allthumbnail()
-        await CallbackQuery.answer(
-            "All bot photo thumbnails enabled globally.", show_alert=True
-        )
-
-    new_state = await is_allthumbnail_enabled()
-    try:
-        await CallbackQuery.edit_message_reply_markup(
-            reply_markup=allthumb_markup(new_state)
-        )
     except Exception:
         pass
