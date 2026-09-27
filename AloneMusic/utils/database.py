@@ -647,5 +647,3 @@ async def remove_banned_user(user_id: int):
     if not is_gbanned:
         return
     return await blockeddb.delete_one({"user_id": user_id})
-
-
