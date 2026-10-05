@@ -14,7 +14,7 @@ from py_yt import VideosSearch
 
 class AppleAPI:
     def __init__(self):
-        self.regex = r"^(https:\/\/music.apple.com\/)(.*)$"
+        self.regex = r"^(https:\/\/music\.apple\.com\/)(.*)$"
         self.base = "https://music.apple.com/in/playlist/"
 
     async def valid(self, link: str):
