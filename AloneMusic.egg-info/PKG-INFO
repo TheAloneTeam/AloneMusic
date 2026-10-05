@@ -31,7 +31,7 @@ Requires-Dist: hachoir>=3.3.0
 Requires-Dist: httpx>=0.27.0
 Requires-Dist: humanize>=4.15.0
 Requires-Dist: requests>=2.32.3
-Requires-Dist: python-dotenv==1.2.3
+Requires-Dist: python-dotenv==1.2.4
 Requires-Dist: pyyaml>=6.0.1
 Requires-Dist: unidecode>=1.4.0
 Requires-Dist: tgcrypto>=1.2.5
