@@ -3,7 +3,7 @@ README.md
 pyproject.toml
 AloneMusic/__init__.py
 AloneMusic/__main__.py
-AloneMusic/logging.py
+AloneMusic/log.py
 AloneMusic/misc.py
 AloneMusic.egg-info/PKG-INFO
 AloneMusic.egg-info/SOURCES.txt
