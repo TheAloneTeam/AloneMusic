@@ -13,7 +13,7 @@ from pyrogram.enums import ChatMemberStatus, ParseMode
 
 import config
 
-from ..logging import LOGGER
+from ..log import LOGGER
 
 
 class Alone(Client):

@@ -13,7 +13,7 @@ from git.exc import GitCommandError, InvalidGitRepositoryError
 
 import config
 
-from ..logging import LOGGER
+from ..log import LOGGER
 
 loop = asyncio.get_event_loop_policy().get_event_loop()
 

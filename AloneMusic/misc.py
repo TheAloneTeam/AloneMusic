@@ -15,7 +15,7 @@ from pyrogram import filters
 import config
 from AloneMusic.core.mongo import mongodb
 
-from .logging import LOGGER
+from .log import LOGGER
 
 SUDOERS = filters.user()
 
