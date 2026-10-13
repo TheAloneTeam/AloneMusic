@@ -15,19 +15,26 @@ ${reset}"
 
 sleep 1
 
-echo -e "${yellow}Updating system...${reset}"
-sudo apt update -y && sudo apt upgrade -y
-
-echo -e "${yellow}Installing system packages...${reset}"
-sudo apt install -y python3 python3-pip python3-venv git ffmpeg libffi-dev libopus0
-
-if [ ! -d "AloneMusic" ]; then
-  git clone https://github.com/TheAloneTeam/AloneMusic.git
+if command -v sudo >/dev/null 2>&1; then
+    SUDO="sudo"
 else
-  cd AloneMusic && git pull && cd ..
+    SUDO=""
 fi
 
-cd AloneMusic
+echo -e "${yellow}Updating system...${reset}"
+$SUDO apt update -y && $SUDO apt upgrade -y
+
+echo -e "${yellow}Installing system packages...${reset}"
+$SUDO apt install -y python3 python3-pip python3-venv git ffmpeg libffi-dev libopus0
+
+if [ ! -f "pyproject.toml" ]; then
+    if [ ! -d "AloneMusic" ]; then
+        git clone https://github.com/TheAloneTeam/AloneMusic.git
+        cd AloneMusic
+    else
+        cd AloneMusic && git pull
+    fi
+fi
 
 echo -e "${yellow}Creating venv...${reset}"
 python3 -m venv venv
