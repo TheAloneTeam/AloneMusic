@@ -68,4 +68,4 @@ EOF
 echo -e "${green}.env created successfully${reset}"
 
 echo -e "${green}Starting AloneMusic...${reset}"
-python3 -m AloneMusic.bot
+python3 -m AloneMusic
