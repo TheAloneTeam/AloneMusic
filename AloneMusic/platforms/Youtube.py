@@ -15,10 +15,7 @@ import httpx
 import yt_dlp
 
 # ── Patch httpx 0.28+ proxies parameter for compatibility with youtubesearchpython
-_orig_async_client_init = httpx.AsyncClient.__init__
-
-
-def _patched_async_client_init(self, *args, **kwargs):
+def _normalize_proxies(kwargs):
     if "proxies" in kwargs:
         p = kwargs.pop("proxies")
         if "proxy" not in kwargs and p:
@@ -31,10 +28,31 @@ def _patched_async_client_init(self, *args, **kwargs):
                 )
             else:
                 kwargs["proxy"] = p
+
+_orig_async_client_init = httpx.AsyncClient.__init__
+def _patched_async_client_init(self, *args, **kwargs):
+    _normalize_proxies(kwargs)
     return _orig_async_client_init(self, *args, **kwargs)
 
+_orig_client_init = httpx.Client.__init__
+def _patched_client_init(self, *args, **kwargs):
+    _normalize_proxies(kwargs)
+    return _orig_client_init(self, *args, **kwargs)
+
+_orig_post = httpx.post
+def _patched_post(*args, **kwargs):
+    _normalize_proxies(kwargs)
+    return _orig_post(*args, **kwargs)
+
+_orig_get = httpx.get
+def _patched_get(*args, **kwargs):
+    _normalize_proxies(kwargs)
+    return _orig_get(*args, **kwargs)
 
 httpx.AsyncClient.__init__ = _patched_async_client_init
+httpx.Client.__init__ = _patched_client_init
+httpx.post = _patched_post
+httpx.get = _patched_get
 
 # ── Config ────────────────────────────────────────────────────
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
