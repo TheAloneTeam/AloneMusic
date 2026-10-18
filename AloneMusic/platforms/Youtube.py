@@ -87,21 +87,6 @@ except ImportError:
 
 
 # ── Utility helpers ───────────────────────────────────────────
-def get_cookie_path():
-    cookie_file = os.getenv("COOKIES_FILE") or os.getenv("YOUTUBE_COOKIES_FILE")
-    if cookie_file and os.path.exists(cookie_file):
-        return cookie_file
-    for fname in [
-        "cookies.txt",
-        "cookie.txt",
-        "youtube_cookies.txt",
-        os.path.join("downloads", "cookies.txt"),
-    ]:
-        if os.path.exists(fname):
-            return fname
-    return None
-
-
 def extract_vidid(q):
     if not q:
         return None
@@ -119,11 +104,7 @@ async def check_file_size(link):
         return sum(x.get("filesize", 0) for x in f) if f else 0
 
     async def _info():
-        cookie_path = get_cookie_path()
-        cmd = ["yt-dlp", "-J"]
-        if cookie_path:
-            cmd.extend(["--cookies", cookie_path])
-        cmd.append(link)
+        cmd = ["yt-dlp", "-J", link]
         p = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
@@ -343,11 +324,7 @@ class YouTubeAPI:
         except Exception as e:
             logging.warning(f"Downloading API video locally failed: {e}")
         try:
-            cookie_path = get_cookie_path()
-            cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]"]
-            if cookie_path:
-                cmd.extend(["--cookies", cookie_path])
-            cmd.append(link)
+            cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]", link]
             p = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -434,9 +411,6 @@ class YouTubeAPI:
 
         def _extract():
             opts = {"quiet": True}
-            cookie_path = get_cookie_path()
-            if cookie_path:
-                opts["cookiefile"] = cookie_path
             with yt_dlp.YoutubeDL(opts) as y:
                 return y.extract_info(link, download=False)
 
@@ -610,15 +584,12 @@ class YouTubeAPI:
                 if await _dl_api(link, dt, fp):
                     return fp, True
         loop = asyncio.get_running_loop()
-        cookie_path = get_cookie_path()
         _base_opts = {
             "geo_bypass": True,
             "nocheckcertificate": True,
             "quiet": True,
             "no_warnings": True,
         }
-        if cookie_path:
-            _base_opts["cookiefile"] = cookie_path
 
         def _audio_dl():
             x = yt_dlp.YoutubeDL(
@@ -683,11 +654,7 @@ class YouTubeAPI:
                 direct = True
                 df = await loop.run_in_executor(None, _video_dl)
             else:
-                cookie_path = get_cookie_path()
-                cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]"]
-                if cookie_path:
-                    cmd.extend(["--cookies", cookie_path])
-                cmd.append(f"{link}")
+                cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]", f"{link}"]
                 p = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdout=asyncio.subprocess.PIPE,
