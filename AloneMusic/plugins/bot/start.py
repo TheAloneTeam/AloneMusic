@@ -68,7 +68,10 @@ async def start_pm(client, message: Message, _):
             query = (str(name)).replace("info_", "", 1)
             query = f"https://www.youtube.com/watch?v={query}"
             results = VideosSearch(query, limit=1)
-            for result in (await results.next())["result"]:
+            res = (await results.next()).get("result", [])
+            title = None
+            thumbnail = config.START_IMG_URL
+            for result in res:
                 title = result["title"]
                 duration = result["duration"]
                 views = result["viewCount"]["short"]
@@ -77,6 +80,9 @@ async def start_pm(client, message: Message, _):
                 channel = result["channel"]["name"]
                 link = result["link"]
                 published = result["publishedTime"]
+            if not title:
+                await m.delete()
+                return await message.reply_text("Could not fetch info.")
             searched_text = _["start_6"].format(
                 title, duration, views, published, channellink, channel, app.mention
             )
