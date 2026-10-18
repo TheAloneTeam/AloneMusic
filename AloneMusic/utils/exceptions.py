@@ -21,7 +21,12 @@ IGNORED_ERROR_KEYWORDS = [
     "कोई सक्रिय वीडियोचैट नहीं मिला।",
 ]
 
-IGNORED_EXCEPTION_CLASSES = ()
+import asyncio
+
+IGNORED_EXCEPTION_CLASSES = (
+    TimeoutError,
+    asyncio.TimeoutError,
+)
 
 
 def is_ignored_error(err: Exception | BaseException) -> bool:
