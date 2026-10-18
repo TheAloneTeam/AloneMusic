@@ -155,6 +155,7 @@ async def stream(
         if spotify:
             try:
                 from AloneMusic import Spotify
+
                 file_path = await Spotify.download_track(link, chat_id)
             except Exception:
                 file_path = None
