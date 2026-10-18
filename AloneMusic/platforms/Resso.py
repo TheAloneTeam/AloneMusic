@@ -42,7 +42,10 @@ class RessoAPI:
         if des == "":
             return
         results = VideosSearch(title, limit=1)
-        for result in (await results.next())["result"]:
+        res = (await results.next()).get("result", [])
+        if not res:
+            return False
+        for result in res:
             title = result["title"]
             ytlink = result["link"]
             vidid = result["id"]
