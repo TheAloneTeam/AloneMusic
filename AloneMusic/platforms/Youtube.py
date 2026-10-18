@@ -14,6 +14,28 @@ import urllib.parse
 import httpx
 import yt_dlp
 
+# ── Patch httpx 0.28+ proxies parameter for compatibility with youtubesearchpython
+_orig_async_client_init = httpx.AsyncClient.__init__
+
+
+def _patched_async_client_init(self, *args, **kwargs):
+    if "proxies" in kwargs:
+        p = kwargs.pop("proxies")
+        if "proxy" not in kwargs and p:
+            if isinstance(p, dict):
+                kwargs["proxy"] = (
+                    p.get("all://")
+                    or p.get("https://")
+                    or p.get("http://")
+                    or next(iter(p.values()), None)
+                )
+            else:
+                kwargs["proxy"] = p
+    return _orig_async_client_init(self, *args, **kwargs)
+
+
+httpx.AsyncClient.__init__ = _patched_async_client_init
+
 # ── Config ────────────────────────────────────────────────────
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "")
@@ -65,6 +87,21 @@ except ImportError:
 
 
 # ── Utility helpers ───────────────────────────────────────────
+def get_cookie_path():
+    cookie_file = os.getenv("COOKIES_FILE") or os.getenv("YOUTUBE_COOKIES_FILE")
+    if cookie_file and os.path.exists(cookie_file):
+        return cookie_file
+    for fname in [
+        "cookies.txt",
+        "cookie.txt",
+        "youtube_cookies.txt",
+        os.path.join("downloads", "cookies.txt"),
+    ]:
+        if os.path.exists(fname):
+            return fname
+    return None
+
+
 def extract_vidid(q):
     if not q:
         return None
@@ -82,10 +119,13 @@ async def check_file_size(link):
         return sum(x.get("filesize", 0) for x in f) if f else 0
 
     async def _info():
+        cookie_path = get_cookie_path()
+        cmd = ["yt-dlp", "-J"]
+        if cookie_path:
+            cmd.extend(["--cookies", cookie_path])
+        cmd.append(link)
         p = await asyncio.create_subprocess_exec(
-            "yt-dlp",
-            "-J",
-            link,
+            *cmd,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -303,12 +343,13 @@ class YouTubeAPI:
         except Exception as e:
             logging.warning(f"Downloading API video locally failed: {e}")
         try:
+            cookie_path = get_cookie_path()
+            cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]"]
+            if cookie_path:
+                cmd.extend(["--cookies", cookie_path])
+            cmd.append(link)
             p = await asyncio.create_subprocess_exec(
-                "yt-dlp",
-                "-g",
-                "-f",
-                "best[height<=?720][width<=?1280]",
-                link,
+                *cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -392,7 +433,11 @@ class YouTubeAPI:
                 logging.warning(f"Error fetching formats from API: {e}")
 
         def _extract():
-            with yt_dlp.YoutubeDL({"quiet": True}) as y:
+            opts = {"quiet": True}
+            cookie_path = get_cookie_path()
+            if cookie_path:
+                opts["cookiefile"] = cookie_path
+            with yt_dlp.YoutubeDL(opts) as y:
                 return y.extract_info(link, download=False)
 
         try:
@@ -565,12 +610,15 @@ class YouTubeAPI:
                 if await _dl_api(link, dt, fp):
                     return fp, True
         loop = asyncio.get_running_loop()
+        cookie_path = get_cookie_path()
         _base_opts = {
             "geo_bypass": True,
             "nocheckcertificate": True,
             "quiet": True,
             "no_warnings": True,
         }
+        if cookie_path:
+            _base_opts["cookiefile"] = cookie_path
 
         def _audio_dl():
             x = yt_dlp.YoutubeDL(
@@ -635,12 +683,13 @@ class YouTubeAPI:
                 direct = True
                 df = await loop.run_in_executor(None, _video_dl)
             else:
+                cookie_path = get_cookie_path()
+                cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]"]
+                if cookie_path:
+                    cmd.extend(["--cookies", cookie_path])
+                cmd.append(f"{link}")
                 p = await asyncio.create_subprocess_exec(
-                    "yt-dlp",
-                    "-g",
-                    "-f",
-                    "best[height<=?720][width<=?1280]",
-                    f"{link}",
+                    *cmd,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                 )
