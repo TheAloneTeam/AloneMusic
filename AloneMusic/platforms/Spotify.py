@@ -11,18 +11,17 @@ import os
 import re
 import urllib.parse
 import urllib.request
+from typing import Optional, List, Tuple
 
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
-
-from AloneMusic.platforms.Youtube import YouTube
+from spotipy.oauth2 import SpotifyClientCredentials
 
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "riteshfree9f664e9f2b0a4d5a85a35738")
 
 
-async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
+async def download_assistant(query: str, dl_type: str = "audio") -> Optional[str]:
     """Build an external AloneMusic API stream/download URL for Spotify/Audio queries."""
     if not API_URL:
         return None
@@ -39,9 +38,7 @@ async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
 def _scrape_spotify(url: str):
     if "/embed/" not in url:
         embed_url = re.sub(
-            r"https?://(open|music)\.spotify\.com/",
-            "https://open.spotify.com/embed/",
-            url,
+            r"https?://(open|music)\.spotify\.com/", "https://open.spotify.com/embed/", url
         )
     else:
         embed_url = url
@@ -89,9 +86,7 @@ class SpotifyAPI:
     async def valid(self, link: str):
         return bool(re.search(self.regex, str(link)))
 
-    async def download_track(
-        self, link: str, chat_id: int | None = None, *args, **kwargs
-    ):
+    async def download_track(self, link: str, chat_id: int = None, *args, **kwargs):
         """Constructs API-based stream/download URL for the given Spotify track link."""
         return await download_assistant(link, "audio")
 
@@ -119,11 +114,13 @@ class SpotifyAPI:
         if self.spotify:
             try:
                 track = self.spotify.track(link)
-                info = track["name"]
-                for artist in track["artists"]:
-                    fetched = f' {artist["name"]}'
-                    if "Various Artists" not in fetched:
-                        info += fetched
+                info = track.get("name") or ""
+                for artist in track.get("artists", []):
+                    aname = artist.get("name")
+                    if aname:
+                        fetched = f' {aname}'
+                        if "Various Artists" not in fetched:
+                            info += fetched
             except Exception:
                 info = None
 
@@ -134,47 +131,31 @@ class SpotifyAPI:
                 artists = [
                     a.get("name")
                     for a in entity.get("artists", [])
-                    if a.get("name") and "Various Artists" not in a.get("name")
+                    if a and a.get("name") and "Various Artists" not in a.get("name")
                 ]
                 if artists:
                     info = f"{title} {' '.join(artists)}"
                 else:
-                    subtitle = entity.get("subtitle", "")
+                    subtitle = entity.get("subtitle") or ""
                     info = f"{title} {subtitle}".strip()
             except Exception:
                 info = link
 
+        results = VideosSearch(info, limit=1)
+        res_data = await asyncio.to_thread(results.result)
         vidid = None
         title = "Spotify Track"
         ytlink = ""
         duration_min = "00:00"
         thumbnail = ""
-
-        try:
-            results = VideosSearch(info, limit=1)
-            res_data = await asyncio.to_thread(results.result)
-            if res_data and res_data.get("result"):
-                res0 = res_data["result"][0]
-                ytlink = res0.get("link", "")
-                title = res0.get("title", title)
-                vidid = res0.get("id")
-                duration_min = res0.get("duration", "00:00")
-                if res0.get("thumbnails"):
-                    thumbnail = res0["thumbnails"][0]["url"].split("?")[0]
-        except Exception:
-            pass
-
-        if not vidid:
-            try:
-                t_title, t_dur, _sec, t_thumb, t_vidid = await YouTube.details(info)
-                if t_vidid:
-                    vidid = t_vidid
-                    title = t_title or title
-                    duration_min = t_dur or duration_min
-                    thumbnail = t_thumb or thumbnail
-                    ytlink = f"https://www.youtube.com/watch?v={vidid}"
-            except Exception:
-                pass
+        if res_data and res_data.get("result"):
+            res0 = res_data["result"][0]
+            ytlink = res0.get("link", "")
+            title = res0.get("title", title)
+            vidid = res0.get("id")
+            duration_min = res0.get("duration", "00:00")
+            if res0.get("thumbnails"):
+                thumbnail = res0["thumbnails"][0]["url"].split("?")[0]
 
         track_details = {
             "title": title,
@@ -182,7 +163,7 @@ class SpotifyAPI:
             "vidid": vidid,
             "duration_min": duration_min,
             "thumb": thumbnail,
-            "query_info": info,
+            "query_info": info
         }
         return track_details, vidid
 
@@ -193,13 +174,15 @@ class SpotifyAPI:
             try:
                 playlist = self.spotify.playlist(url)
                 playlist_id = playlist["id"]
-                for item in playlist["tracks"]["items"]:
-                    music_track = item["track"]
-                    info = music_track["name"]
-                    for artist in music_track["artists"]:
-                        fetched = f' {artist["name"]}'
-                        if "Various Artists" not in fetched:
-                            info += fetched
+                for item in playlist.get("tracks", {}).get("items", []):
+                    music_track = item.get("track") or {}
+                    info = music_track.get("name") or ""
+                    for artist in music_track.get("artists", []):
+                        aname = artist.get("name")
+                        if aname:
+                            fetched = f' {aname}'
+                            if "Various Artists" not in fetched:
+                                info += fetched
                     results.append(info)
             except Exception:
                 results = []
@@ -226,12 +209,14 @@ class SpotifyAPI:
             try:
                 album = self.spotify.album(url)
                 album_id = album["id"]
-                for item in album["tracks"]["items"]:
-                    info = item["name"]
-                    for artist in item["artists"]:
-                        fetched = f' {artist["name"]}'
-                        if "Various Artists" not in fetched:
-                            info += fetched
+                for item in album.get("tracks", {}).get("items", []):
+                    info = item.get("name") or ""
+                    for artist in item.get("artists", []):
+                        aname = artist.get("name")
+                        if aname:
+                            fetched = f' {aname}'
+                            if "Various Artists" not in fetched:
+                                info += fetched
                     results.append(info)
             except Exception:
                 results = []
@@ -259,12 +244,14 @@ class SpotifyAPI:
                 artistinfo = self.spotify.artist(url)
                 artist_id = artistinfo["id"]
                 artisttoptracks = self.spotify.artist_top_tracks(url)
-                for item in artisttoptracks["tracks"]:
-                    info = item["name"]
-                    for artist in item["artists"]:
-                        fetched = f' {artist["name"]}'
-                        if "Various Artists" not in fetched:
-                            info += fetched
+                for item in artisttoptracks.get("tracks", []):
+                    info = item.get("name") or ""
+                    for artist in item.get("artists", []):
+                        aname = artist.get("name")
+                        if aname:
+                            fetched = f' {aname}'
+                            if "Various Artists" not in fetched:
+                                info += fetched
                     results.append(info)
             except Exception:
                 results = []
