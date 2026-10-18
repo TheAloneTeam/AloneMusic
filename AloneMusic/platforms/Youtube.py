@@ -654,7 +654,13 @@ class YouTubeAPI:
                 direct = True
                 df = await loop.run_in_executor(None, _video_dl)
             else:
-                cmd = ["yt-dlp", "-g", "-f", "best[height<=?720][width<=?1280]", f"{link}"]
+                cmd = [
+                    "yt-dlp",
+                    "-g",
+                    "-f",
+                    "best[height<=?720][width<=?1280]",
+                    f"{link}",
+                ]
                 p = await asyncio.create_subprocess_exec(
                     *cmd,
                     stdout=asyncio.subprocess.PIPE,
