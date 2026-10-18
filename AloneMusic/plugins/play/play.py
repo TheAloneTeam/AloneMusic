@@ -228,10 +228,6 @@ async def play_commnd(
                 )
         elif await Spotify.valid(url):
             spotify = True
-            if not config.SPOTIFY_CLIENT_ID and not config.SPOTIFY_CLIENT_SECRET:
-                return await mystic.edit_text(
-                    "» sᴘᴏᴛɪғʏ ɪs ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ʏᴇᴛ.\n\nᴘʟᴇᴀsᴇ ᴛʀʏ ᴀɢᴀɪɴ ʟᴀᴛᴇʀ."
-                )
             if "track" in url:
                 try:
                     details, track_id = await Spotify.track(url)
@@ -370,10 +366,12 @@ async def play_commnd(
         except Exception as ex:
             print(ex)
             return await mystic.edit_text(_["play_3"])
+        if not details:
+            return await mystic.edit_text(_["play_3"])
         streamtype = "youtube"
     if str(playmode) == "Direct":
         if not plist_type:
-            if details["duration_min"]:
+            if details.get("duration_min"):
                 duration_sec = time_to_seconds(details["duration_min"])
                 if duration_sec > config.DURATION_LIMIT:
                     return await mystic.edit_text(
@@ -496,7 +494,9 @@ async def play_music(client, CallbackQuery, _):
         details, track_id = await YouTube.track(vidid, True)
     except:
         return await mystic.edit_text(_["play_3"])
-    if details["duration_min"]:
+    if not details:
+        return await mystic.edit_text(_["play_3"])
+    if details.get("duration_min"):
         duration_sec = time_to_seconds(details["duration_min"])
         if duration_sec > config.DURATION_LIMIT:
             return await mystic.edit_text(
