@@ -38,7 +38,7 @@ httpx.AsyncClient.__init__ = _patched_async_client_init
 
 # ── Config ────────────────────────────────────────────────────
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "")
+API_KEY = os.getenv("API_KEY", "ic)\.spotify\.com/", "https://open")
 
 # ── Dynamic imports with graceful fallbacks ───────────────────
 try:
