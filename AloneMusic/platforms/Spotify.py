@@ -11,17 +11,16 @@ import os
 import re
 import urllib.parse
 import urllib.request
-from typing import Optional, List, Tuple
 
 import spotipy
-from youtubesearchpython import VideosSearch
 from spotipy.oauth2 import SpotifyClientCredentials
+from youtubesearchpython import VideosSearch
 
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "riteshfree9f664e9f2b0a4d5a85a35738")
 
 
-async def download_assistant(query: str, dl_type: str = "audio") -> Optional[str]:
+async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
     """Build an external AloneMusic API stream/download URL for Spotify/Audio queries."""
     if not API_URL:
         return None
@@ -38,7 +37,9 @@ async def download_assistant(query: str, dl_type: str = "audio") -> Optional[str
 def _scrape_spotify(url: str):
     if "/embed/" not in url:
         embed_url = re.sub(
-            r"https?://(open|music)\.spotify\.com/", "https://open.spotify.com/embed/", url
+            r"https?://(open|music)\.spotify\.com/",
+            "https://open.spotify.com/embed/",
+            url,
         )
     else:
         embed_url = url
@@ -86,7 +87,7 @@ class SpotifyAPI:
     async def valid(self, link: str):
         return bool(re.search(self.regex, str(link)))
 
-    async def download_track(self, link: str, chat_id: int = None, *args, **kwargs):
+    async def download_track(self, link: str, chat_id: int | None = None, *args, **kwargs):
         """Constructs API-based stream/download URL for the given Spotify track link."""
         return await download_assistant(link, "audio")
 
@@ -161,7 +162,7 @@ class SpotifyAPI:
             "vidid": vidid,
             "duration_min": duration_min,
             "thumb": thumbnail,
-            "query_info": info
+            "query_info": info,
         }
         return track_details, vidid
 
