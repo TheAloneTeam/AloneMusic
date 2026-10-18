@@ -36,7 +36,10 @@ class AppleAPI:
         if search is None:
             return False
         results = VideosSearch(search, limit=1)
-        for result in (await results.next())["result"]:
+        res = (await results.next()).get("result", [])
+        if not res:
+            return False
+        for result in res:
             title = result["title"]
             ytlink = result["link"]
             vidid = result["id"]
