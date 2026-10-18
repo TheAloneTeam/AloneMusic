@@ -14,6 +14,7 @@ import urllib.request
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from AloneMusic.platforms.Youtube import YouTube
 from youtubesearchpython import VideosSearch
 
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
@@ -142,21 +143,37 @@ class SpotifyAPI:
             except Exception:
                 info = link
 
-        results = VideosSearch(info, limit=1)
-        res_data = await asyncio.to_thread(results.result)
         vidid = None
         title = "Spotify Track"
         ytlink = ""
         duration_min = "00:00"
         thumbnail = ""
-        if res_data and res_data.get("result"):
-            res0 = res_data["result"][0]
-            ytlink = res0.get("link", "")
-            title = res0.get("title", title)
-            vidid = res0.get("id")
-            duration_min = res0.get("duration", "00:00")
-            if res0.get("thumbnails"):
-                thumbnail = res0["thumbnails"][0]["url"].split("?")[0]
+
+        try:
+            results = VideosSearch(info, limit=1)
+            res_data = await asyncio.to_thread(results.result)
+            if res_data and res_data.get("result"):
+                res0 = res_data["result"][0]
+                ytlink = res0.get("link", "")
+                title = res0.get("title", title)
+                vidid = res0.get("id")
+                duration_min = res0.get("duration", "00:00")
+                if res0.get("thumbnails"):
+                    thumbnail = res0["thumbnails"][0]["url"].split("?")[0]
+        except Exception:
+            pass
+
+        if not vidid:
+            try:
+                t_title, t_dur, _sec, t_thumb, t_vidid = await YouTube.details(info)
+                if t_vidid:
+                    vidid = t_vidid
+                    title = t_title or title
+                    duration_min = t_dur or duration_min
+                    thumbnail = t_thumb or thumbnail
+                    ytlink = f"https://www.youtube.com/watch?v={vidid}"
+            except Exception:
+                pass
 
         track_details = {
             "title": title,
