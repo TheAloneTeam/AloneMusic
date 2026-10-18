@@ -32,9 +32,14 @@ async def get_thumb(videoid):
         return f"cache/{videoid}.png"
 
     url = f"https://www.youtube.com/watch?v={videoid}"
+    thumbnail = None
+    title = "Unsupported Title"
+    duration = "Unknown"
+    views = "Unknown Views"
     try:
         results = VideosSearch(url, limit=1)
-        for result in (await results.next())["result"]:
+        res = (await results.next()).get("result", [])
+        for result in res:
             try:
                 title = result["title"]
                 title = re.sub(r"\W+", " ", title)
@@ -45,11 +50,17 @@ async def get_thumb(videoid):
                 duration = result["duration"]
             except:
                 duration = "Unknown"
-            thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+            try:
+                thumbnail = result["thumbnails"][0]["url"].split("?")[0]
+            except:
+                thumbnail = None
             try:
                 views = result["viewCount"]["short"]
             except:
                 views = "Unknown Views"
+
+        if not thumbnail:
+            return YOUTUBE_IMG_URL
 
         async with aiohttp.ClientSession() as session:
             async with session.get(thumbnail) as resp:
@@ -196,7 +207,9 @@ async def get_qthumb(vidid):
     try:
         url = f"https://www.youtube.com/watch?v={vidid}"
         results = VideosSearch(url, limit=1)
-        for result in (await results.next())["result"]:
+        res = (await results.next()).get("result", [])
+        thumbnail = YOUTUBE_IMG_URL
+        for result in res:
             thumbnail = result["thumbnails"][0]["url"].split("?")[0]
         return thumbnail
     except Exception as e:
