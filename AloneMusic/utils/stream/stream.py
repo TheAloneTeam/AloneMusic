@@ -150,13 +150,23 @@ async def stream(
         duration_min = result["duration_min"]
         thumbnail = result["thumb"]
         status = True if video else None
-        try:
-            file_path, direct = await YouTube.download(
-                vidid, mystic, videoid=True, video=status
-            )
-        except Exception as ex:
-            print(ex)
-            raise AssistantErr(_["play_14"])
+        file_path = None
+        direct = True
+        if spotify:
+            try:
+                from AloneMusic import Spotify
+                file_path = await Spotify.download_track(link, chat_id)
+            except Exception:
+                file_path = None
+
+        if not file_path:
+            try:
+                file_path, direct = await YouTube.download(
+                    vidid, mystic, videoid=True, video=status
+                )
+            except Exception as ex:
+                print(ex)
+                raise AssistantErr(_["play_14"])
         if await is_active_chat(chat_id):
             await put_queue(
                 chat_id,
