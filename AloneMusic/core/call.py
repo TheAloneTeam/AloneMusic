@@ -121,7 +121,6 @@ class Call(PyTgCalls):
             ffmpeg_parameters=ffmpeg,
         )
 
-    @capture_internal_err
     async def _play_on_assistant(
         self,
         client: PyTgCalls,
@@ -285,12 +284,17 @@ class Call(PyTgCalls):
 
     @capture_internal_err
     async def stream_call(self, link):
-        assistant = await group_assistant(self, config.LOGGER_ID)
-        stream = self._build_stream(link, video=True)
-        await self._play_on_assistant(assistant, config.LOGGER_ID, stream)
-        await asyncio.sleep(0.2)
         try:
-            await assistant.leave_call(config.LOGGER_ID, close=False)
+            assistant = await group_assistant(self, config.LOGGER_ID)
+            stream = self._build_stream(link, video=True)
+            await self._play_on_assistant(assistant, config.LOGGER_ID, stream)
+            await asyncio.sleep(0.2)
+            try:
+                await assistant.leave_call(config.LOGGER_ID, close=False)
+            except Exception:
+                pass
+        except (TimeoutError, asyncio.TimeoutError):
+            pass
         except Exception:
             pass
 
@@ -314,6 +318,8 @@ class Call(PyTgCalls):
         except exceptions.NoAudioSourceFound:
             raise AssistantErr(_["call_10"])
         except (ConnectionNotFound, TelegramServerError):
+            raise AssistantErr(_["call_10"])
+        except (TimeoutError, asyncio.TimeoutError):
             raise AssistantErr(_["call_10"])
         except Exception:
             raise AssistantErr(_["call_10"])
