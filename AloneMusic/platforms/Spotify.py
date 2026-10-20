@@ -144,7 +144,9 @@ class SpotifyAPI:
     async def valid(self, link: str):
         return bool(re.search(self.regex, str(link)))
 
-    async def download_track(self, link: str, chat_id: int | None = None, *args, **kwargs):
+    async def download_track(
+        self, link: str, chat_id: int | None = None, *args, **kwargs
+    ):
         """Constructs API-based stream/download URL for the given Spotify track link."""
         return await download_assistant(link, "audio")
 

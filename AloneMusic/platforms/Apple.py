@@ -6,12 +6,10 @@
 # All rights reserved.
 
 import asyncio
-import json
 import os
 import re
 import urllib.parse
 import urllib.request
-from typing import Optional, List, Tuple
 
 import aiohttp
 import yt_dlp
@@ -24,58 +22,60 @@ API_KEY = os.getenv("API_KEY", "")
 
 def _search_yt_dlp(query: str):
     ydl_opts = {
-        'format': 'bestaudio/best',
-        'noplaylist': True,
-        'extract_flat': True,
-        'quiet': True,
-        'no_warnings': True,
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['mweb', 'ios', 'android']
-            }
-        },
+        "format": "bestaudio/best",
+        "noplaylist": True,
+        "extract_flat": True,
+        "quiet": True,
+        "no_warnings": True,
+        "extractor_args": {"youtube": {"player_client": ["mweb", "ios", "android"]}},
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
             info = ydl.extract_info(f"ytsearch1:{query}", download=False)
-            entries = info.get('entries', [])
+            entries = info.get("entries", [])
             if entries and entries[0]:
                 entry = entries[0]
-                vidid = entry.get('id')
-                title = entry.get('title', 'Apple Music Track')
-                duration = entry.get('duration', 0)
+                vidid = entry.get("id")
+                title = entry.get("title", "Apple Music Track")
+                duration = entry.get("duration", 0)
                 d_str = "00:00"
                 if duration:
                     m, s = divmod(int(duration), 60)
                     h, m = divmod(m, 60)
                     d_str = f"{h}:{m:02d}:{s:02d}" if h else f"{m:02d}:{s:02d}"
-                thumbnails = entry.get('thumbnails', [])
-                thumb = thumbnails[0]['url'].split('?')[0] if thumbnails else f"https://i.ytimg.com/vi/{vidid}/hqdefault.jpg"
+                thumbnails = entry.get("thumbnails", [])
+                thumb = (
+                    thumbnails[0]["url"].split("?")[0]
+                    if thumbnails
+                    else f"https://i.ytimg.com/vi/{vidid}/hqdefault.jpg"
+                )
                 return {
-                    'result': [{
-                        'id': vidid,
-                        'title': title,
-                        'link': f"https://www.youtube.com/watch?v={vidid}",
-                        'duration': d_str,
-                        'thumbnails': [{'url': thumb}]
-                    }]
+                    "result": [
+                        {
+                            "id": vidid,
+                            "title": title,
+                            "link": f"https://www.youtube.com/watch?v={vidid}",
+                            "duration": d_str,
+                            "thumbnails": [{"url": thumb}],
+                        }
+                    ]
                 }
         except Exception:
             pass
-    return {'result': []}
+    return {"result": []}
 
 
 def _safe_videos_search(query: str, limit: int = 1):
     try:
         res = VideosSearch(query, limit=limit).result()
-        if res and res.get('result'):
+        if res and res.get("result"):
             return res
     except Exception:
         pass
     return _search_yt_dlp(query)
 
 
-async def download_assistant(query: str, dl_type: str = "audio") -> Optional[str]:
+async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
     """Build an external AloneMusic API stream/download URL for Apple Music/Audio queries."""
     if not API_URL:
         return None
@@ -97,7 +97,7 @@ class AppleAPI:
     async def valid(self, link: str):
         return bool(re.search(self.regex, str(link)))
 
-    async def download_track(self, link: str, chat_id: int = None, *args, **kwargs):
+    async def download_track(self, link: str, chat_id: int | None = None, *args, **kwargs):
         """Constructs API-based stream/download URL for the given Apple Music track link."""
         return await download_assistant(link, "audio")
 
@@ -148,7 +148,12 @@ class AppleAPI:
             parsed = urllib.parse.urlparse(url)
             path_parts = [p for p in parsed.path.split("/") if p]
             if path_parts:
-                slug = path_parts[1] if len(path_parts) > 1 and path_parts[0] in ("in", "us", "gb", "ca", "au", "jp") else path_parts[0]
+                slug = (
+                    path_parts[1]
+                    if len(path_parts) > 1
+                    and path_parts[0] in ("in", "us", "gb", "ca", "au", "jp")
+                    else path_parts[0]
+                )
                 search_query = slug.replace("-", " ")
 
         if not search_query:
@@ -177,7 +182,7 @@ class AppleAPI:
             "vidid": vidid,
             "duration_min": duration_min,
             "thumb": thumbnail,
-            "query_info": search_query
+            "query_info": search_query,
         }
         return track_details, vidid
 
@@ -206,7 +211,9 @@ class AppleAPI:
                 content = item.get("content", "")
                 if "album/" in content:
                     try:
-                        xx = (content.split("album/")[1].split("/")[0]).replace("-", " ")
+                        xx = (content.split("album/")[1].split("/")[0]).replace(
+                            "-", " "
+                        )
                         results.append(xx)
                     except Exception:
                         pass
