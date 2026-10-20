@@ -5,16 +5,19 @@
 #
 # All rights reserved.
 
+import asyncio
+import json
 import logging
 import os
 import re
 import urllib.parse
-from typing import Any
+from typing import Optional, List, Tuple, Dict, Any
 
 import httpx
-from Apple import Apple
-from Spotify import Spotify
+
 from Youtube import YouTube
+from Spotify import Spotify, _safe_videos_search
+from Apple import Apple
 
 LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +51,7 @@ PLATFORM_PATTERNS = {
 }
 
 
-async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
+async def download_assistant(query: str, dl_type: str = "audio") -> Optional[str]:
     """Build an external AloneMusic API stream/download URL for any platform query."""
     if not API_URL:
         return None
@@ -83,11 +86,11 @@ class AllSupportAPI:
         if not link or not isinstance(link, str):
             return False
         link_str = link.strip()
-        return link_str.startswith(("http://", "https://"))
+        if not link_str.startswith(("http://", "https://")):
+            return False
+        return True
 
-    async def download_track(
-        self, link: str, chat_id: int | None = None, *args, **kwargs
-    ) -> str | None:
+    async def download_track(self, link: str, chat_id: int = None, *args, **kwargs) -> Optional[str]:
         """Constructs API-based stream/download URL for given track link across any platform."""
         platform = self.detect_platform(link)
 
@@ -113,7 +116,7 @@ class AllSupportAPI:
         instant=None,
         *args,
         **kwargs,
-    ) -> tuple[str | None, bool]:
+    ) -> Tuple[Optional[str], bool]:
         """Resolves stream/download URL via API or local platform handler matching AloneMusic signatures."""
         platform = self.detect_platform(link)
         dl_type = "video" if (video or songvideo) else "audio"
@@ -136,7 +139,7 @@ class AllSupportAPI:
         stream_link = await download_assistant(link, dl_type)
         return stream_link, False
 
-    async def track(self, link: str) -> tuple[dict[str, Any], str | None]:
+    async def track(self, link: str) -> Tuple[Dict[str, Any], Optional[str]]:
         """Extract metadata details for a single track across any supported platform."""
         platform = self.detect_platform(link)
 
@@ -148,7 +151,7 @@ class AllSupportAPI:
                 "vidid": vidid,
                 "duration_min": dur_min or "00:00",
                 "thumb": thumb or "",
-                "platform": "youtube",
+                "platform": "youtube"
             }
             return track_details, vidid
 
@@ -165,55 +168,60 @@ class AllSupportAPI:
             return details, vidid
 
         # External API resolution fallback for JioSaavn, Instagram, TikTok, SoundCloud, Deezer, etc.
+        title = "Platform Media"
+        thumb = ""
+        dur_min = "00:00"
+        vidid = None
+
         if API_URL:
             try:
-                async with httpx.AsyncClient(
-                    timeout=10.0, follow_redirects=True
-                ) as client:
+                async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
                     params = {"url": link}
                     if API_KEY:
                         params["api_key"] = API_KEY
-                    resp = await client.get(
-                        f"{API_URL}/api/platform/extract", params=params
-                    )
+                    resp = await client.get(f"{API_URL}/api/platform/extract", params=params)
                     if resp.status_code == 200:
                         data = resp.json()
                         p_data = data.get("data", {})
-                        title = p_data.get("title") or "Platform Media"
-                        thumb = p_data.get("thumbnail") or ""
+                        title = p_data.get("title") or title
+                        thumb = p_data.get("thumbnail") or thumb
                         dur_sec = p_data.get("duration") or 0
-                        m, s = divmod(int(dur_sec), 60)
-                        dur_min = f"{m:02d}:{s:02d}"
-                        vidid = p_data.get("id") or f"{platform}_media"
-                        return {
-                            "title": title,
-                            "link": link,
-                            "vidid": vidid,
-                            "duration_min": dur_min,
-                            "thumb": thumb,
-                            "platform": platform,
-                        }, vidid
+                        if dur_sec:
+                            m, s = divmod(int(dur_sec), 60)
+                            dur_min = f"{m:02d}:{s:02d}"
+                        vidid = p_data.get("id")
             except Exception as err:
-                LOGGER.warning(
-                    f"API platform extraction lookup failed for {link}: {err}"
-                )
+                LOGGER.warning(f"API platform extraction lookup failed for {link}: {err}")
 
-        # Basic fallback track details
-        clean_title = (
-            urllib.parse.unquote(link.split("/")[-1].split("?")[0])
-            .replace("-", " ")
-            .title()
-        )
-        return {
-            "title": clean_title or "Media Track",
+        if title and title != "Platform Media":
+            search_query = title
+        else:
+            clean_title = urllib.parse.unquote(link.split("/")[-1].split("?")[0]).replace("-", " ").title()
+            search_query = clean_title or link
+
+        if not vidid or vidid == f"{platform}_media":
+            yt_res = await asyncio.to_thread(_safe_videos_search, search_query, 1)
+            if yt_res and yt_res.get("result"):
+                r0 = yt_res["result"][0]
+                vidid = r0.get("id") or vidid
+                if not thumb and r0.get("thumbnails"):
+                    thumb = r0["thumbnails"][0]["url"].split("?")[0]
+                if dur_min == "00:00" and r0.get("duration"):
+                    dur_min = r0.get("duration")
+                if title == "Platform Media":
+                    title = r0.get("title") or title
+
+        track_details = {
+            "title": title or "Media Track",
             "link": link,
-            "vidid": f"{platform}_track",
-            "duration_min": "00:00",
-            "thumb": "",
-            "platform": platform,
-        }, f"{platform}_track"
+            "vidid": vidid or f"{platform}_track",
+            "duration_min": dur_min,
+            "thumb": thumb,
+            "platform": platform
+        }
+        return track_details, vidid or f"{platform}_track"
 
-    async def playlist(self, url: str, limit: int = 20) -> tuple[list[str], str]:
+    async def playlist(self, url: str, limit: int = 20) -> Tuple[List[str], str]:
         """Extract playlist/album track titles across platforms."""
         platform = self.detect_platform(url)
 
@@ -235,7 +243,7 @@ class AllSupportAPI:
 
         return [url], url
 
-    async def album(self, url: str) -> tuple[list[str], str]:
+    async def album(self, url: str) -> Tuple[List[str], str]:
         """Extract album track list."""
         return await self.playlist(url)
 
