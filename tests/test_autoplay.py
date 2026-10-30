@@ -5,7 +5,9 @@ import asyncio
 from AloneMusic.utils.database import get_autoplay, set_autoplay, autoplay
 from AloneMusic.utils.stream.queue import put_queue, put_queue_index
 from AloneMusic.misc import db
-from AloneMusic.core.call import Call, autoplay_in_progress
+from AloneMusic.core.call import Call, autoplay_in_progress, delete_upcoming_message, fetch_artist_tracks, upcoming_message
+from AloneMusic.plugins.admins.skip import check_autoplay_on_skip
+from AloneMusic.plugins.misc.seeker import timer
 
 
 class TestAutoplay(unittest.IsolatedAsyncioTestCase):
@@ -35,6 +37,44 @@ class TestAutoplay(unittest.IsolatedAsyncioTestCase):
             await set_autoplay(chat_id, True)
             state = await get_autoplay(chat_id)
             self.assertTrue(state)
+
+    async def test_fetch_artist_tracks_fallback(self):
+        with patch("youtubesearchpython.__future__.VideosSearch.next", new_callable=AsyncMock) as mock_search_next, \
+             patch("AloneMusic.core.call.YouTube.get_related_videos", new_callable=AsyncMock) as mock_related, \
+             patch("AloneMusic.core.call.YouTube.details", new_callable=AsyncMock) as mock_details:
+
+            mock_search_next.return_value = {"result": []}
+            mock_related.return_value = ["rel_vid_1"]
+            mock_details.return_value = ("Related Song", "03:15", 195, "thumb.jpg", "rel_vid_1")
+
+            tracks = await fetch_artist_tracks("Unknown Artist", vidid="vid_123")
+            self.assertEqual(len(tracks), 1)
+            self.assertEqual(tracks[0]["vidid"], "rel_vid_1")
+            self.assertEqual(tracks[0]["title"], "Related Song")
+
+    async def test_delete_upcoming_message(self):
+        chat_id = -100123456789
+        mock_msg = AsyncMock()
+        upcoming_message[chat_id] = mock_msg
+
+        await delete_upcoming_message(chat_id)
+        mock_msg.delete.assert_called_once()
+        self.assertNotIn(chat_id, upcoming_message)
+
+    @patch("AloneMusic.plugins.admins.skip.get_autoplay", new_callable=AsyncMock, return_value=True)
+    @patch("AloneMusic.utils.database.autoplaydb.update_one", new_callable=AsyncMock)
+    async def test_check_autoplay_on_skip(self, mock_update_db, mock_get_atp):
+        chat_id = -100123456789
+        db[chat_id] = []
+
+        popped = {"artist": "Artist Skip", "title": "Song Skip", "vidid": "vid_skip"}
+
+        with patch("AloneMusic.plugins.admins.skip.fetch_artist_tracks", new_callable=AsyncMock) as mock_fetch:
+            mock_fetch.return_value = [{"vidid": "v1", "title": "Artist Skip - Song 1", "duration_min": "03:00"}]
+            added = await check_autoplay_on_skip(chat_id, popped)
+            self.assertTrue(added)
+            self.assertTrue(autoplay_in_progress.get(chat_id))
+            self.assertEqual(len(db[chat_id]), 1)
 
     async def test_put_queue_with_artist(self):
         chat_id = -100123456789

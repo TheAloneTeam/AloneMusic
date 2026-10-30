@@ -12,7 +12,7 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
 from AloneMusic import YouTube, app
-from AloneMusic.core.call import Alone, autoplay_in_progress, fetch_artist_tracks
+from AloneMusic.core.call import Alone, autoplay_in_progress, delete_upcoming_message, fetch_artist_tracks
 from AloneMusic.misc import db
 from AloneMusic.utils.database import get_autoplay, get_loop, set_autoplay
 from AloneMusic.utils.decorators import AdminRightsCheck
@@ -35,8 +35,9 @@ async def check_autoplay_on_skip(chat_id: int, popped: dict):
                 artist_name = t_title.split()[0].strip()
             else:
                 artist_name = t_title.strip()
-        if artist_name:
-            artist_tracks = await fetch_artist_tracks(artist_name)
+        popped_vidid = popped.get("vidid") if isinstance(popped, dict) else None
+        if artist_name or popped_vidid:
+            artist_tracks = await fetch_artist_tracks(artist_name, popped_vidid)
             if artist_tracks:
                 autoplay_in_progress[chat_id] = True
                 user_by = popped.get("by", "Autoplay") if isinstance(popped, dict) else "Autoplay"
@@ -80,6 +81,7 @@ async def delete_old_message(chat_id: int):
 @AdminRightsCheck
 async def skip(cli, message: Message, _, chat_id):
     await delete_old_message(chat_id)
+    await delete_upcoming_message(chat_id)
     if not len(message.command) < 2:
         loop = await get_loop(chat_id)
         if loop != 0:

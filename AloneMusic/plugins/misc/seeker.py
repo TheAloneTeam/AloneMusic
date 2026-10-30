@@ -9,8 +9,10 @@
 
 import asyncio
 
+from AloneMusic import app
+from AloneMusic.core.call import upcoming_message
 from AloneMusic.misc import db
-from AloneMusic.utils.database import get_active_chats, is_music_playing
+from AloneMusic.utils.database import get_active_chats, get_autoplay, is_music_playing
 
 
 async def timer():
@@ -29,5 +31,37 @@ async def timer():
                 continue
             db[chat_id][0]["played"] += 1
 
+            played = db[chat_id][0]["played"]
+            if duration - played == 10 and not db[chat_id][0].get("notified_10s"):
+                db[chat_id][0]["notified_10s"] = True
+                next_title = None
+                if len(playing) > 1:
+                    next_title = playing[1].get("title")
+                elif await get_autoplay(chat_id):
+                    artist_name = playing[0].get("artist")
+                    if not artist_name:
+                        t_title = playing[0].get("title", "")
+                        if " - " in t_title:
+                            artist_name = t_title.split(" - ")[0].strip()
+                        elif " " in t_title:
+                            artist_name = t_title.split()[0].strip()
+                        else:
+                            artist_name = t_title.strip()
+                    next_title = f"Autoplay ({artist_name})" if artist_name else "Autoplay Track"
 
-asyncio.create_task(timer())
+                if next_title:
+                    try:
+                        orig_cid = playing[0].get("chat_id", chat_id)
+                        msg = await app.send_message(
+                            orig_cid,
+                            f"⌛ <b>Nᴇxᴛ Sᴏɴɢ Pʟᴀʏɪɴɢ Iɴ 10s :</b>\n\n🎵 <b>{next_title}</b>",
+                        )
+                        upcoming_message[chat_id] = msg
+                    except Exception:
+                        pass
+
+
+try:
+    asyncio.create_task(timer())
+except RuntimeError:
+    pass

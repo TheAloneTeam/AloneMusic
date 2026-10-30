@@ -54,38 +54,64 @@ async def delete_old_message(chat_id: int):
 autoend = {}
 counter = {}
 autoplay_in_progress = {}
+upcoming_message = {}
 
 
-async def fetch_artist_tracks(artist_name: str):
-    if not artist_name:
-        return []
+async def delete_upcoming_message(chat_id: int):
     try:
-        from youtubesearchpython.__future__ import VideosSearch
+        msg = upcoming_message.pop(chat_id, None)
+        if msg:
+            await msg.delete()
+    except Exception:
+        pass
 
-        search = VideosSearch(f"{artist_name} songs", limit=10)
-        res = await search.next()
-        tracks = []
-        if res and res.get("result"):
-            for item in res["result"]:
-                vid = item.get("id")
-                if vid:
+
+async def fetch_artist_tracks(artist_name: str, vidid: str | None = None):
+    tracks = []
+    if artist_name:
+        try:
+            from youtubesearchpython.__future__ import VideosSearch
+
+            search = VideosSearch(f"{artist_name} songs", limit=10)
+            res = await search.next()
+            if res and res.get("result"):
+                for item in res["result"]:
+                    vid = item.get("id")
+                    if vid:
+                        tracks.append(
+                            {
+                                "vidid": vid,
+                                "title": item.get("title", f"{artist_name} Track"),
+                                "duration_min": item.get("duration", "03:00"),
+                                "artist": artist_name,
+                            }
+                        )
+        except Exception:
+            pass
+
+    if not tracks and vidid:
+        try:
+            rel_vids = await YouTube.get_related_videos(vidid)
+            for vid in rel_vids[:10]:
+                title, dur_min, _dur_sec, _thumb, _v = await YouTube.details(vid, True)
+                if title and dur_min:
                     tracks.append(
                         {
                             "vidid": vid,
-                            "title": item.get("title", f"{artist_name} Track"),
-                            "duration_min": item.get("duration", "03:00"),
-                            "artist": artist_name,
+                            "title": title,
+                            "duration_min": dur_min,
+                            "artist": artist_name or "Related Artist",
                         }
                     )
-            return tracks
-    except Exception:
-        pass
-    return []
+        except Exception:
+            pass
+    return tracks
 
 
 async def _clear_(chat_id: int):
     db[chat_id] = []
     autoplay_in_progress.pop(chat_id, None)
+    await delete_upcoming_message(chat_id)
     await remove_active_video_chat(chat_id)
     await remove_active_chat(chat_id)
 
@@ -368,6 +394,7 @@ class Call(PyTgCalls):
     @capture_internal_err
     async def change_stream(self, client: PyTgCalls, chat_id: int):
         await delete_old_message(chat_id)
+        await delete_upcoming_message(chat_id)
         check = db.get(chat_id)
         popped = None
         loop = await get_loop(chat_id)
@@ -392,8 +419,9 @@ class Call(PyTgCalls):
                             artist_name = t_title.split()[0].strip()
                         else:
                             artist_name = t_title.strip()
-                    if artist_name:
-                        artist_tracks = await fetch_artist_tracks(artist_name)
+                    popped_vidid = popped.get("vidid") if isinstance(popped, dict) else None
+                    if artist_name or popped_vidid:
+                        artist_tracks = await fetch_artist_tracks(artist_name, popped_vidid)
                         if artist_tracks:
                             autoplay_in_progress[chat_id] = True
                             user_by = (
