@@ -12,14 +12,57 @@ from pyrogram.types import InlineKeyboardMarkup, Message
 
 import config
 from AloneMusic import YouTube, app
-from AloneMusic.core.call import Alone
+from AloneMusic.core.call import Alone, autoplay_in_progress, fetch_artist_tracks
 from AloneMusic.misc import db
-from AloneMusic.utils.database import get_loop
+from AloneMusic.utils.database import get_autoplay, get_loop, set_autoplay
 from AloneMusic.utils.decorators import AdminRightsCheck
 from AloneMusic.utils.inline import close_markup, stream_markup
 from AloneMusic.utils.stream.autoclear import auto_clean
+from AloneMusic.utils.stream.queue import put_queue
 from AloneMusic.utils.thumbnails import get_thumb
 from config import BANNED_USERS
+
+
+async def check_autoplay_on_skip(chat_id: int, popped: dict):
+    is_atp = await get_autoplay(chat_id)
+    if is_atp and not autoplay_in_progress.get(chat_id):
+        artist_name = popped.get("artist") if isinstance(popped, dict) else None
+        if not artist_name and isinstance(popped, dict):
+            t_title = popped.get("title", "")
+            if " - " in t_title:
+                artist_name = t_title.split(" - ")[0].strip()
+            elif " " in t_title:
+                artist_name = t_title.split()[0].strip()
+            else:
+                artist_name = t_title.strip()
+        if artist_name:
+            artist_tracks = await fetch_artist_tracks(artist_name)
+            if artist_tracks:
+                autoplay_in_progress[chat_id] = True
+                user_by = popped.get("by", "Autoplay") if isinstance(popped, dict) else "Autoplay"
+                user_id = popped.get("user_id", 0) if isinstance(popped, dict) else 0
+                orig_cid = popped.get("chat_id", chat_id) if isinstance(popped, dict) else chat_id
+                for trk in artist_tracks:
+                    vidid = trk.get("vidid")
+                    title = trk.get("title")
+                    dur_min = trk.get("duration_min", "03:00")
+                    await put_queue(
+                        chat_id,
+                        orig_cid,
+                        f"vid_{vidid}",
+                        title,
+                        dur_min,
+                        user_by,
+                        vidid,
+                        user_id,
+                        "audio",
+                        artist=artist_name,
+                    )
+                return True
+    elif autoplay_in_progress.get(chat_id):
+        autoplay_in_progress[chat_id] = False
+        await set_autoplay(chat_id, False)
+    return False
 
 
 async def delete_old_message(chat_id: int):
@@ -59,18 +102,20 @@ async def skip(cli, message: Message, _, chat_id):
                             if popped:
                                 await auto_clean(popped)
                             if not check:
-                                try:
-                                    await message.reply_text(
-                                        text=_["admin_6"].format(
-                                            message.from_user.mention,
-                                            message.chat.title,
-                                        ),
-                                        reply_markup=close_markup(_),
-                                    )
-                                    await Alone.stop_stream(chat_id)
-                                except:
-                                    return
-                                break
+                                atp_added = await check_autoplay_on_skip(chat_id, popped)
+                                if not atp_added:
+                                    try:
+                                        await message.reply_text(
+                                            text=_["admin_6"].format(
+                                                message.from_user.mention,
+                                                message.chat.title,
+                                            ),
+                                            reply_markup=close_markup(_),
+                                        )
+                                        await Alone.stop_stream(chat_id)
+                                    except:
+                                        return
+                                    break
                     else:
                         return await message.reply_text(_["admin_11"].format(count))
                 else:
@@ -87,16 +132,18 @@ async def skip(cli, message: Message, _, chat_id):
             if popped:
                 await auto_clean(popped)
             if not check:
-                await message.reply_text(
-                    text=_["admin_6"].format(
-                        message.from_user.mention, message.chat.title
-                    ),
-                    reply_markup=close_markup(_),
-                )
-                try:
-                    return await Alone.stop_stream(chat_id)
-                except:
-                    return
+                atp_added = await check_autoplay_on_skip(chat_id, popped)
+                if not atp_added:
+                    await message.reply_text(
+                        text=_["admin_6"].format(
+                            message.from_user.mention, message.chat.title
+                        ),
+                        reply_markup=close_markup(_),
+                    )
+                    try:
+                        return await Alone.stop_stream(chat_id)
+                    except:
+                        return
         except:
             try:
                 await message.reply_text(

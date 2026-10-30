@@ -168,6 +168,7 @@ async def stream(
             except Exception as ex:
                 print(ex)
                 raise AssistantErr(_["play_14"])
+        artist_name = result.get("artist") if isinstance(result, dict) else None
         if await is_active_chat(chat_id):
             await put_queue(
                 chat_id,
@@ -179,6 +180,7 @@ async def stream(
                 vidid,
                 user_id,
                 "video" if video else "audio",
+                artist=artist_name,
             )
             position = len(db.get(chat_id)) - 1
             button = aq_markup(_, chat_id)
@@ -218,6 +220,7 @@ async def stream(
                 user_id,
                 "video" if video else "audio",
                 forceplay=forceplay,
+                artist=artist_name,
             )
             img = await get_thumb(vidid)
             button = stream_markup(_, chat_id)

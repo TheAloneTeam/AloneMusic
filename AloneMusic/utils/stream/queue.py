@@ -25,6 +25,7 @@ async def put_queue(
     user_id,
     stream,
     forceplay: bool | str | None = None,
+    artist: str | None = None,
 ):
     title = title.title()
     try:
@@ -42,6 +43,7 @@ async def put_queue(
         "vidid": vidid,
         "seconds": duration_in_seconds,
         "played": 0,
+        "artist": artist,
     }
     if forceplay:
         check = db.get(chat_id)
@@ -65,6 +67,7 @@ async def put_queue_index(
     vidid,
     stream,
     forceplay: bool | str | None = None,
+    artist: str | None = None,
 ):
     if "20.212.146.162" in vidid:
         try:
@@ -87,6 +90,7 @@ async def put_queue_index(
         "vidid": vidid,
         "seconds": dur,
         "played": 0,
+        "artist": artist,
     }
     if forceplay:
         check = db.get(chat_id)

@@ -31,42 +31,41 @@ def _normalize_proxies(kwargs):
                 kwargs["proxy"] = p
 
 
-_orig_async_client_init = httpx.AsyncClient.__init__
+if hasattr(httpx, "AsyncClient"):
+    _orig_async_client_init = httpx.AsyncClient.__init__
 
+    def _patched_async_client_init(self, *args, **kwargs):
+        _normalize_proxies(kwargs)
+        return _orig_async_client_init(self, *args, **kwargs)
 
-def _patched_async_client_init(self, *args, **kwargs):
-    _normalize_proxies(kwargs)
-    return _orig_async_client_init(self, *args, **kwargs)
+    httpx.AsyncClient.__init__ = _patched_async_client_init
 
+if hasattr(httpx, "Client"):
+    _orig_client_init = httpx.Client.__init__
 
-_orig_client_init = httpx.Client.__init__
+    def _patched_client_init(self, *args, **kwargs):
+        _normalize_proxies(kwargs)
+        return _orig_client_init(self, *args, **kwargs)
 
+    httpx.Client.__init__ = _patched_client_init
 
-def _patched_client_init(self, *args, **kwargs):
-    _normalize_proxies(kwargs)
-    return _orig_client_init(self, *args, **kwargs)
+if hasattr(httpx, "post"):
+    _orig_post = httpx.post
 
+    def _patched_post(*args, **kwargs):
+        _normalize_proxies(kwargs)
+        return _orig_post(*args, **kwargs)
 
-_orig_post = httpx.post
+    httpx.post = _patched_post
 
+if hasattr(httpx, "get"):
+    _orig_get = httpx.get
 
-def _patched_post(*args, **kwargs):
-    _normalize_proxies(kwargs)
-    return _orig_post(*args, **kwargs)
+    def _patched_get(*args, **kwargs):
+        _normalize_proxies(kwargs)
+        return _orig_get(*args, **kwargs)
 
-
-_orig_get = httpx.get
-
-
-def _patched_get(*args, **kwargs):
-    _normalize_proxies(kwargs)
-    return _orig_get(*args, **kwargs)
-
-
-httpx.AsyncClient.__init__ = _patched_async_client_init
-httpx.Client.__init__ = _patched_client_init
-httpx.post = _patched_post
-httpx.get = _patched_get
+    httpx.get = _patched_get
 
 # ── Config ────────────────────────────────────────────────────
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")

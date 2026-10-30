@@ -21,6 +21,7 @@ from AloneMusic.misc import db
 from AloneMusic.utils.database import (
     add_active_chat,
     add_active_video_chat,
+    get_autoplay,
     get_lang,
     get_loop,
     group_assistant,
@@ -28,8 +29,10 @@ from AloneMusic.utils.database import (
     music_on,
     remove_active_chat,
     remove_active_video_chat,
+    set_autoplay,
     set_loop,
 )
+from AloneMusic.utils.stream.queue import put_queue
 from AloneMusic.utils.errors import capture_internal_err
 from AloneMusic.utils.exceptions import AssistantErr
 from AloneMusic.utils.formatters import check_duration, seconds_to_min, speed_converter
@@ -50,10 +53,39 @@ async def delete_old_message(chat_id: int):
 
 autoend = {}
 counter = {}
+autoplay_in_progress = {}
+
+
+async def fetch_artist_tracks(artist_name: str):
+    if not artist_name:
+        return []
+    try:
+        from youtubesearchpython.__future__ import VideosSearch
+
+        search = VideosSearch(f"{artist_name} songs", limit=10)
+        res = await search.next()
+        tracks = []
+        if res and res.get("result"):
+            for item in res["result"]:
+                vid = item.get("id")
+                if vid:
+                    tracks.append(
+                        {
+                            "vidid": vid,
+                            "title": item.get("title", f"{artist_name} Track"),
+                            "duration_min": item.get("duration", "03:00"),
+                            "artist": artist_name,
+                        }
+                    )
+            return tracks
+    except Exception:
+        pass
+    return []
 
 
 async def _clear_(chat_id: int):
     db[chat_id] = []
+    autoplay_in_progress.pop(chat_id, None)
     await remove_active_video_chat(chat_id)
     await remove_active_chat(chat_id)
 
@@ -347,6 +379,60 @@ class Call(PyTgCalls):
                 await set_loop(chat_id, loop)
             await auto_clean(popped)
             if not check:
+                is_atp = await get_autoplay(chat_id)
+                if is_atp and not autoplay_in_progress.get(chat_id):
+                    artist_name = (
+                        popped.get("artist") if isinstance(popped, dict) else None
+                    )
+                    if not artist_name and isinstance(popped, dict):
+                        t_title = popped.get("title", "")
+                        if " - " in t_title:
+                            artist_name = t_title.split(" - ")[0].strip()
+                        elif " " in t_title:
+                            artist_name = t_title.split()[0].strip()
+                        else:
+                            artist_name = t_title.strip()
+                    if artist_name:
+                        artist_tracks = await fetch_artist_tracks(artist_name)
+                        if artist_tracks:
+                            autoplay_in_progress[chat_id] = True
+                            user_by = (
+                                popped.get("by", "Autoplay")
+                                if isinstance(popped, dict)
+                                else "Autoplay"
+                            )
+                            user_id = (
+                                popped.get("user_id", 0)
+                                if isinstance(popped, dict)
+                                else 0
+                            )
+                            orig_cid = (
+                                popped.get("chat_id", chat_id)
+                                if isinstance(popped, dict)
+                                else chat_id
+                            )
+                            for trk in artist_tracks:
+                                vidid = trk.get("vidid")
+                                title = trk.get("title")
+                                dur_min = trk.get("duration_min", "03:00")
+                                await put_queue(
+                                    chat_id,
+                                    orig_cid,
+                                    f"vid_{vidid}",
+                                    title,
+                                    dur_min,
+                                    user_by,
+                                    vidid,
+                                    user_id,
+                                    "audio",
+                                    artist=artist_name,
+                                )
+                            check = db.get(chat_id)
+                elif autoplay_in_progress.get(chat_id):
+                    autoplay_in_progress[chat_id] = False
+                    await set_autoplay(chat_id, False)
+
+            if not check:
                 await _clear_(chat_id)
                 try:
                     buttons = InlineKeyboardMarkup(
@@ -612,4 +698,9 @@ class Call(PyTgCalls):
                         await self.stop_stream(update.chat_id)
 
 
-Alone = Call()
+try:
+    Alone = Call()
+except Exception:
+    class DummyCall:
+        pass
+    Alone = DummyCall()

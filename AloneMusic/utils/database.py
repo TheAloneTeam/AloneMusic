@@ -16,6 +16,7 @@ authdb = mongodb.adminauth
 authuserdb = mongodb.authuser
 autoenddb = mongodb.autoend
 autoleavedb = mongodb.autoleave
+autoplaydb = mongodb.autoplay
 assdb = mongodb.assistants
 blacklist_chatdb = mongodb.blacklistChat
 blockeddb = mongodb.blockedusers
@@ -37,6 +38,7 @@ activevideo = []
 assistantdict = {}
 autoend = {}
 autoleave = {}
+autoplay = {}
 count = {}
 channelconnect = {}
 langm = {}
@@ -236,6 +238,25 @@ async def autoleave_on():
 async def autoleave_off():
     chat_id = 1234
     await autoleavedb.delete_one({"chat_id": chat_id})
+
+
+async def get_autoplay(chat_id: int) -> bool:
+    atp = autoplay.get(chat_id)
+    if atp is None:
+        user = await autoplaydb.find_one({"chat_id": chat_id})
+        if not user:
+            autoplay[chat_id] = True
+            return True
+        autoplay[chat_id] = user["mode"]
+        return user["mode"]
+    return atp
+
+
+async def set_autoplay(chat_id: int, mode: bool):
+    autoplay[chat_id] = mode
+    await autoplaydb.update_one(
+        {"chat_id": chat_id}, {"$set": {"mode": mode}}, upsert=True
+    )
 
 
 async def get_loop(chat_id: int) -> int:
