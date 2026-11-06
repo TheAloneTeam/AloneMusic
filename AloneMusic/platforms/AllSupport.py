@@ -19,27 +19,35 @@ import yt_dlp
 # Configuration from all_platforms.py
 # -------------------------------------------------------------
 try:
-    from AloneMusic.platforms.all_platforms import (
+    from all_platforms import (
         API_KEY,
         API_URL,
         DEFAULT_API_KEY,
         DEFAULT_API_URL,
     )
 except Exception:
-    API_URL = (
-        os.getenv("API_URL")
-        or os.getenv("ALONE_API_URL")
-        or os.getenv("RITESH_API_URL")
-        or "https://api.riteshyt.in"
-    ).rstrip("/")
-    API_KEY = (
-        os.getenv("API_KEY")
-        or os.getenv("ALONE_API_KEY")
-        or os.getenv("RITESH_API_KEY")
-        or ""
-    )
-    DEFAULT_API_URL = API_URL
-    DEFAULT_API_KEY = API_KEY
+    try:
+        from AloneMusic.platforms.all_platforms import (
+            API_KEY,
+            API_URL,
+            DEFAULT_API_KEY,
+            DEFAULT_API_URL,
+        )
+    except Exception:
+        API_URL = (
+            os.getenv("API_URL")
+            or os.getenv("ALONE_API_URL")
+            or os.getenv("RITESH_API_URL")
+            or "https://api.riteshyt.in"
+        ).rstrip("/")
+        API_KEY = (
+            os.getenv("API_KEY")
+            or os.getenv("ALONE_API_KEY")
+            or os.getenv("RITESH_API_KEY")
+            or ""
+        )
+        DEFAULT_API_URL = API_URL
+        DEFAULT_API_KEY = API_KEY
 
 
 def _safe_search_ytdlp(query: str) -> Dict[str, Any]:
@@ -263,7 +271,7 @@ class AllSupport:
         """
         Voicechat bot helper: construct direct stream URL for a given track link or resolved direct URL.
         """
-        return self.get_stream_url(link, dl_type="audio")
+        return None
 
     async def download(
         self,
