@@ -21,7 +21,7 @@ except Exception:
         os.getenv("API_KEY")
         or os.getenv("ALONE_API_KEY")
         or os.getenv("RITESH_API_KEY")
-        or ""
+        or "riteshfree7bf33e2c0825084d93617e83"
     )
     DEFAULT_API_URL = API_URL
     DEFAULT_API_KEY = API_KEY

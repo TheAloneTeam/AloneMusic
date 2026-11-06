@@ -160,16 +160,6 @@ async def stream(
             except Exception:
                 file_path = None
 
-        if not file_path and result.get("platform") and result.get("platform") != "youtube":
-            try:
-                file_path = result.get("stream_url")
-                if not file_path:
-                    from AloneMusic import AllSupport
-
-                    file_path = await AllSupport.download_track(link, chat_id)
-            except Exception:
-                file_path = None
-
         if not file_path and vidid:
             try:
                 file_path, direct = await YouTube.download(
@@ -177,8 +167,12 @@ async def stream(
                 )
             except Exception as ex:
                 print(ex)
-                raise AssistantErr(_["play_14"])
-        elif not file_path and not vidid:
+                file_path = None
+
+        if not file_path and result.get("stream_url"):
+            file_path = result.get("stream_url")
+
+        if not file_path:
             raise AssistantErr(_["play_14"])
         if await is_active_chat(chat_id):
             await put_queue(
