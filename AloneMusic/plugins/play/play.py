@@ -326,14 +326,6 @@ async def play_commnd(
             streamtype = "youtube"
             details["thumb"]
             cap = _["play_10"].format(details["title"], details["duration_min"])
-        elif await AllSupport.valid(url):
-            try:
-                details, track_id = await AllSupport.track(url)
-            except:
-                return await mystic.edit_text(_["play_3"])
-            streamtype = "youtube"
-            details["thumb"]
-            cap = _["play_10"].format(details["title"], details["duration_min"])
         elif await SoundCloud.valid(url):
             try:
                 details, _track_path = await SoundCloud.download(url)
@@ -364,6 +356,14 @@ async def play_commnd(
                 err = e if ex_type == "AssistantErr" else _["general_2"].format(ex_type)
                 return await mystic.edit_text(err)
             return
+        elif await AllSupport.valid(url):
+            try:
+                details, track_id = await AllSupport.track(url)
+            except:
+                return await mystic.edit_text(_["play_3"])
+            streamtype = "youtube"
+            details["thumb"]
+            cap = _["play_10"].format(details["title"], details["duration_min"])
         else:
             try:
                 await Alone.stream_call(url)

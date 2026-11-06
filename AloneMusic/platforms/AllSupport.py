@@ -1,6 +1,9 @@
-# Copyright (C) 2026 by Kartike Mishra, < https://github.com/meowkingm >.
-# Universal All Platforms Client API SDK for AloneMusic / KartikeAPI.
-# Drop-in helper module for Telegram music & media bots (Yukki, Yukon, Aviax, Fallen, etc.)
+#
+# Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
+# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
+# and is released under the "GNU v3.0 License Agreement".
+# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
+#
 # All rights reserved.
 
 import asyncio
@@ -13,23 +16,30 @@ import httpx
 import yt_dlp
 
 # -------------------------------------------------------------
-# Configuration (Aap yaha direct apna API_URL aur API_KEY daal sakte hain)
+# Configuration from all_platforms.py
 # -------------------------------------------------------------
-API_URL = (
-    os.getenv("API_URL")
-    or os.getenv("ALONE_API_URL")
-    or os.getenv("RITESH_API_URL")
-    or "https://api.riteshyt.in"
-)
-API_KEY = (
-    os.getenv("API_KEY")
-    or os.getenv("ALONE_API_KEY")
-    or os.getenv("RITESH_API_KEY")
-    or "riteshfree7bf33e2c0825084d93617e83"
-)
-
-DEFAULT_API_URL = API_URL
-DEFAULT_API_KEY = API_KEY
+try:
+    from AloneMusic.platforms.all_platforms import (
+        API_KEY,
+        API_URL,
+        DEFAULT_API_KEY,
+        DEFAULT_API_URL,
+    )
+except Exception:
+    API_URL = (
+        os.getenv("API_URL")
+        or os.getenv("ALONE_API_URL")
+        or os.getenv("RITESH_API_URL")
+        or "https://api.riteshyt.in"
+    ).rstrip("/")
+    API_KEY = (
+        os.getenv("API_KEY")
+        or os.getenv("ALONE_API_KEY")
+        or os.getenv("RITESH_API_KEY")
+        or ""
+    )
+    DEFAULT_API_URL = API_URL
+    DEFAULT_API_KEY = API_KEY
 
 
 def _safe_search_ytdlp(query: str) -> Dict[str, Any]:
@@ -212,17 +222,46 @@ class AllSupport:
         """
         Construct a direct stream / download URL with API key for music bots.
         """
-        safe_query = urllib.parse.quote(str(query_or_id).strip())
+        s = str(query_or_id).strip()
+        # If it is an endpoint on self.api_url or direct API stream path
+        if s.startswith("/api/") or s.startswith("/downloads/"):
+            sep = "&" if "?" in s else "?"
+            key_param = f"{sep}api_key={self.api_key}" if (self.api_key and "api_key=" not in s) else ""
+            return f"{self.api_url}{s}{key_param}"
+
+        if s.startswith("http://") or s.startswith("https://"):
+            # Only treat as stream URL if it belongs to our API stream/download or direct media CDN
+            if self.api_url in s:
+                if self.api_key and "api_key=" not in s:
+                    sep = "&" if "?" in s else "?"
+                    return f"{s}{sep}api_key={self.api_key}"
+                return s
+            # Direct media extensions
+            if any(s.split("?")[0].lower().endswith(ext) for ext in (".mp3", ".m4a", ".mp4", ".ogg", ".wav", ".flac", ".opus")):
+                return s
+            # Raw web pages (instagram.com, tiktok.com, saavn.com, etc.) must be queried through /download
+            safe_link = urllib.parse.quote(s)
+            extension = "mp3" if dl_type == "audio" else "mp4"
+            if self.api_key:
+                return f"{self.api_url}/download?query={safe_link}&dl_type={dl_type}&api_key={self.api_key}"
+            return f"{self.api_url}/download?query={safe_link}&dl_type={dl_type}&quality={quality}"
+
+        safe_query = urllib.parse.quote(s)
         extension = "mp3" if dl_type == "audio" else "mp4"
 
-        if self.api_key:
-            return f"{self.api_url}/downloads/{self.api_key}/{safe_query}.{extension}"
+        # Check 11-char YouTube ID
+        if re.match(r"^[a-zA-Z0-9_-]{11}$", s):
+            if self.api_key:
+                return f"{self.api_url}/downloads/{self.api_key}/{safe_query}.{extension}"
+            return f"{self.api_url}/download?query={safe_query}&dl_type={dl_type}&quality={quality}"
 
+        if self.api_key:
+            return f"{self.api_url}/download?query={safe_query}&dl_type={dl_type}&api_key={self.api_key}"
         return f"{self.api_url}/download?query={safe_query}&dl_type={dl_type}&quality={quality}"
 
     async def download_track(self, link: str, chat_id: Optional[int] = None, *args, **kwargs) -> Optional[str]:
         """
-        Voicechat bot helper: construct direct stream URL for a given track link.
+        Voicechat bot helper: construct direct stream URL for a given track link or resolved direct URL.
         """
         return self.get_stream_url(link, dl_type="audio")
 
@@ -326,24 +365,46 @@ class AllSupport:
         query_info = link
 
         # 1. Attempt remote /details or /api/get lookup
+        direct_stream_url = None
         try:
             data = await self.details_async(link)
             if data and data.get("title"):
                 title = data.get("title", title)
-                vidid = data.get("id") or data.get("vidid")
-                duration_min = str(data.get("duration", "00:00"))
+                raw_id = data.get("id") or data.get("vidid")
+                if raw_id and re.match(r"^[a-zA-Z0-9_-]{11}$", str(raw_id)):
+                    vidid = str(raw_id)
+                duration_min = str(data.get("duration", data.get("duration_min", "00:00")))
                 thumb = data.get("thumb") or data.get("thumbnail", "")
                 ytlink = data.get("link") or (f"https://www.youtube.com/watch?v={vidid}" if vidid else "")
                 query_info = f"{title} {data.get('artist', '')}".strip()
+                if data.get("download_url"):
+                    direct_stream_url = self.get_stream_url(data["download_url"], dl_type="audio")
+                elif data.get("formats") and isinstance(data["formats"], list):
+                    for fmt in data["formats"]:
+                        if fmt.get("url") or fmt.get("direct_url"):
+                            direct_stream_url = self.get_stream_url(fmt.get("direct_url") or fmt.get("url"), dl_type="audio")
+                            break
         except Exception:
-            # Fallback to /api/get if details route had an issue
+            pass
+
+        if not direct_stream_url:
             try:
                 extract_data = await self.extract_async(link)
                 if extract_data and extract_data.get("title"):
                     title = extract_data.get("title", title)
-                    duration_min = str(extract_data.get("duration", "00:00"))
+                    raw_id = extract_data.get("id") or extract_data.get("vidid")
+                    if raw_id and re.match(r"^[a-zA-Z0-9_-]{11}$", str(raw_id)):
+                        vidid = str(raw_id)
+                    duration_min = str(extract_data.get("duration_string", extract_data.get("duration", "00:00")))
                     thumb = extract_data.get("thumbnail") or extract_data.get("thumb", "")
                     query_info = f"{title} {extract_data.get('uploader', '')}".strip()
+                    if extract_data.get("download_url"):
+                        direct_stream_url = self.get_stream_url(extract_data["download_url"], dl_type="audio")
+                    elif extract_data.get("formats") and isinstance(extract_data["formats"], list):
+                        for fmt in extract_data["formats"]:
+                            if fmt.get("url") or fmt.get("direct_url"):
+                                direct_stream_url = self.get_stream_url(fmt.get("direct_url") or fmt.get("url"), dl_type="audio")
+                                break
             except Exception:
                 pass
 
@@ -387,6 +448,7 @@ class AllSupport:
             "thumb": thumb,
             "query_info": query_info,
             "platform": platform,
+            "stream_url": direct_stream_url,
         }
         return track_details, vidid
 

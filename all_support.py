@@ -1,6 +1,10 @@
-# Copyright (C) 2026 by Kartike Mishra, < https://github.com/meowkingm >.
-# Consolidated AloneAPI SDK client module.
-# Re-exports AllSupport, AloneAPI, UniversalAPI, and default instance from all_support.
+#
+# Copyright (C) 2021-2022 by TheAloneteam@Github, < https://github.com/TheAloneTeam >.
+# This file is part of < https://github.com/TheAloneTeam/AloneMusic > project,
+# and is released under the "GNU v3.0 License Agreement".
+# Please see < https://github.com/TheAloneTeam/AloneMusic/blob/master/LICENSE >
+#
+# All rights reserved.
 
 from AloneMusic.platforms.AllSupport import (
     API_KEY,
