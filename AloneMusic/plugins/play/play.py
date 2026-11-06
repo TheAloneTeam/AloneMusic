@@ -15,7 +15,19 @@ from pyrogram.types import InlineKeyboardMarkup, InputMediaPhoto, Message
 from pytgcalls.exceptions import NoActiveGroupCall
 
 import config
-from AloneMusic import Apple, Resso, SoundCloud, Spotify, Telegram, YouTube, app
+from AloneMusic import (
+    AllSupport,
+    Apple,
+    Deezer,
+    Gaana,
+    Resso,
+    Saavn,
+    SoundCloud,
+    Spotify,
+    Telegram,
+    YouTube,
+    app,
+)
 from AloneMusic.core.call import Alone
 from AloneMusic.utils import seconds_to_min, time_to_seconds
 from AloneMusic.utils.channelplay import get_channeplayCB
@@ -282,9 +294,41 @@ async def play_commnd(
                 cap = _["play_12"].format(app.mention, message.from_user.mention)
             else:
                 return await mystic.edit_text(_["play_3"])
+        elif await Saavn.valid(url):
+            try:
+                details, track_id = await Saavn.track(url)
+            except:
+                return await mystic.edit_text(_["play_3"])
+            streamtype = "youtube"
+            details["thumb"]
+            cap = _["play_10"].format(details["title"], details["duration_min"])
+        elif await Deezer.valid(url):
+            try:
+                details, track_id = await Deezer.track(url)
+            except:
+                return await mystic.edit_text(_["play_3"])
+            streamtype = "youtube"
+            details["thumb"]
+            cap = _["play_10"].format(details["title"], details["duration_min"])
+        elif await Gaana.valid(url):
+            try:
+                details, track_id = await Gaana.track(url)
+            except:
+                return await mystic.edit_text(_["play_3"])
+            streamtype = "youtube"
+            details["thumb"]
+            cap = _["play_10"].format(details["title"], details["duration_min"])
         elif await Resso.valid(url):
             try:
                 details, track_id = await Resso.track(url)
+            except:
+                return await mystic.edit_text(_["play_3"])
+            streamtype = "youtube"
+            details["thumb"]
+            cap = _["play_10"].format(details["title"], details["duration_min"])
+        elif await AllSupport.valid(url):
+            try:
+                details, track_id = await AllSupport.track(url)
             except:
                 return await mystic.edit_text(_["play_3"])
             streamtype = "youtube"

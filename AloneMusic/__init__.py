@@ -22,12 +22,86 @@ app = Alone()
 userbot = Userbot()
 
 
-from .platforms import Apple, Carbon, Resso, Soundcloud, Spotify, Telegram, Youtube
+from .platforms import (
+    AllSupport as AllSupportClass,
+    AloneAPI as AloneAPIClass,
+    UniversalAPI as UniversalAPIClass,
+    all_support,
+    Anghami,
+    Apple,
+    Audiomack,
+    Bandcamp,
+    Bilibili,
+    Boomplay,
+    Carbon,
+    Coub,
+    Dailymotion,
+    Deezer,
+    Facebook,
+    Gaana,
+    Instagram,
+    Kick,
+    Mixcloud,
+    Okru,
+    Pinterest,
+    Reddit,
+    Resso,
+    Rumble,
+    Saavn,
+    Snapchat,
+    Soundcloud,
+    Spotify,
+    Streamable,
+    Telegram,
+    Terabox,
+    Threads,
+    Tidal,
+    Tiktok,
+    Tumblr,
+    Twitch,
+    Twitter,
+    Vimeo,
+    Vk,
+    Youtube,
+)
 
+AllSupport = all_support
+AloneAPI = all_support
+UniversalAPI = all_support
+
+Anghami = Anghami.AnghamiAPI()
 Apple = Apple.AppleAPI()
+Audiomack = Audiomack.AudiomackAPI()
+Bandcamp = Bandcamp.BandcampAPI()
+Bilibili = Bilibili.BilibiliAPI()
+Boomplay = Boomplay.BoomplayAPI()
 Carbon = Carbon.CarbonAPI()
+Coub = Coub.CoubAPI()
+Dailymotion = Dailymotion.DailymotionAPI()
+Deezer = Deezer.DeezerAPI()
+Facebook = Facebook.FacebookAPI()
+Gaana = Gaana.GaanaAPI()
+Instagram = Instagram.InstagramAPI()
+Kick = Kick.KickAPI()
+Mixcloud = Mixcloud.MixcloudAPI()
+Okru = Okru.OkruAPI()
+Pinterest = Pinterest.PinterestAPI()
+Reddit = Reddit.RedditAPI()
+Resso = Resso.RessoAPI()
+Rumble = Rumble.RumbleAPI()
+Saavn = Saavn.SaavnAPI()
+Snapchat = Snapchat.SnapchatAPI()
 SoundCloud = Soundcloud.SoundAPI()
 Spotify = Spotify.SpotifyAPI()
-Resso = Resso.RessoAPI()
+Streamable = Streamable.StreamableAPI()
 Telegram = Telegram.TeleAPI()
+Terabox = Terabox.TeraboxAPI()
+Threads = Threads.ThreadsAPI()
+Tidal = Tidal.TidalAPI()
+Tiktok = Tiktok.TiktokAPI()
+Tumblr = Tumblr.TumblrAPI()
+Twitch = Twitch.TwitchAPI()
+Twitter = Twitter.TwitterAPI()
+Vimeo = Vimeo.VimeoAPI()
+Vk = Vk.VkAPI()
 YouTube = Youtube.YouTubeAPI()

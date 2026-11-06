@@ -160,6 +160,14 @@ async def stream(
             except Exception:
                 file_path = None
 
+        if not file_path and result.get("platform") and result.get("platform") != "youtube":
+            try:
+                from AloneMusic import AllSupport
+
+                file_path = await AllSupport.download_track(link, chat_id)
+            except Exception:
+                file_path = None
+
         if not file_path:
             try:
                 file_path, direct = await YouTube.download(
