@@ -18,7 +18,7 @@ from py_yt import VideosSearch
 def load_fonts():
     try:
         return {
-            "title": ImageFont.truetype("AloneMusic/assets/font.ttf", 46),
+            "title": ImageFont.truetype("AloneMusic/assets/font.ttf", 40),
             "channel": ImageFont.truetype("AloneMusic/assets/cfont.ttf", 30),
             "small": ImageFont.truetype("AloneMusic/assets/cfont.ttf", 26),
         }
@@ -32,11 +32,11 @@ def load_fonts():
 FONTS = load_fonts()
 
 # ================= CLEAN =================
-def clean_text(text, limit=28):
+def clean_text(text, limit=25):
     if not text:
         return ""
     text = text.strip()
-    return text[:limit] + "..." if len(text) > limit else text
+    return text[:limit]
 
 # ================= FETCH =================
 async def fetch_image(url):
@@ -52,8 +52,51 @@ async def fetch_image(url):
         pass
     return Image.new("RGBA", (1920, 1080), (30, 30, 30))
 
-# ================= ROUNDED COVER =================
+# ================= LETTERBOX TRIM & ROUNDED COVER =================
+def trim_black_bars(img, threshold=15):
+    """Trims black letterbox/pillarbox borders often present in YouTube thumbnails."""
+    try:
+        rgb = img.convert("RGB")
+        w, h = rgb.size
+
+        top = 0
+        for y in range(h):
+            row = [rgb.getpixel((x, y)) for x in range(0, w, max(1, w // 30))]
+            if sum(sum(p) for p in row) / (len(row) * 3) > threshold:
+                top = y
+                break
+
+        bottom = h
+        for y in range(h - 1, -1, -1):
+            row = [rgb.getpixel((x, y)) for x in range(0, w, max(1, w // 30))]
+            if sum(sum(p) for p in row) / (len(row) * 3) > threshold:
+                bottom = y + 1
+                break
+
+        left = 0
+        for x in range(w):
+            col = [rgb.getpixel((x, y)) for y in range(0, h, max(1, h // 30))]
+            if sum(sum(p) for p in col) / (len(col) * 3) > threshold:
+                left = x
+                break
+
+        right = w
+        for x in range(w - 1, -1, -1):
+            col = [rgb.getpixel((x, y)) for y in range(0, h, max(1, h // 30))]
+            if sum(sum(p) for p in col) / (len(col) * 3) > threshold:
+                right = x + 1
+                break
+
+        if (top > 0 or bottom < h or left > 0 or right < w) and (right - left > w * 0.5) and (bottom - top > h * 0.5):
+            return img.crop((left, top, right, bottom))
+    except Exception:
+        pass
+    return img
+
+
 def make_cover(img, size=(270, 270), radius=25):
+    # Trim any black borders from raw thumbnail before fitting
+    img = trim_black_bars(img)
     # Center crop into square and resize
     cover = ImageOps.fit(img, size, Image.Resampling.LANCZOS)
     mask = Image.new("L", size, 0)
@@ -99,7 +142,7 @@ async def get_thumb(videoid: str):
     try:
         data = (await VideosSearch(f"https://youtube.com/watch?v={videoid}", limit=1).next())["result"][0]
 
-        title = clean_text(data.get("title", "Unknown"))
+        title = clean_text(data.get("title", "Unknown"), limit=25)
         channel = clean_text(data.get("channel", {}).get("name", "") if isinstance(data.get("channel"), dict) else "", limit=35)
         duration = data.get("duration", "0:00")
         thumb = data["thumbnails"][0]["url"].split("?")[0]
