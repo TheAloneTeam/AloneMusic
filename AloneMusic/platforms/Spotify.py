@@ -74,7 +74,7 @@ def _safe_videos_search(query: str, limit: int = 1):
 
 
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree7bf33e2c0825084d93617e83")
+API_KEY = os.getenv("API_KEY", "riteshfree2627b9aa922c4c84e1779ec9")
 
 
 async def download_assistant(query: str, dl_type: str = "audio") -> str | None:
