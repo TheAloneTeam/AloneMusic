@@ -242,7 +242,6 @@ async def del_back_playlist(client, CallbackQuery, _):
             img = await get_thumb(videoid)
             run = await CallbackQuery.message.reply_photo(
                 photo=img,
-                has_spoiler=True,
                 caption=cap,
                 reply_markup=InlineKeyboardMarkup(button),
             )
@@ -280,7 +279,6 @@ async def del_back_playlist(client, CallbackQuery, _):
             img = await get_thumb(videoid)
             run = await CallbackQuery.message.reply_photo(
                 photo=img,
-                has_spoiler=True,
                 caption=cap,
                 reply_markup=InlineKeyboardMarkup(button),
             )
@@ -296,7 +294,6 @@ async def del_back_playlist(client, CallbackQuery, _):
             button = stream_markup(_, chat_id)
             run = await CallbackQuery.message.reply_photo(
                 photo=STREAM_IMG_URL,
-                has_spoiler=True,
                 caption=_["stream_2"].format(user),
                 reply_markup=InlineKeyboardMarkup(button),
             )
@@ -356,7 +353,6 @@ async def del_back_playlist(client, CallbackQuery, _):
                 img = await get_thumb(videoid)
                 run = await CallbackQuery.message.reply_photo(
                     photo=img,
-                    has_spoiler=True,
                     caption=cap,
                     reply_markup=InlineKeyboardMarkup(button),
                 )

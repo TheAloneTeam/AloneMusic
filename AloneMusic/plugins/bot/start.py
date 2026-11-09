@@ -51,17 +51,18 @@ async def start_pm(client, message: Message, _):
             keyboard = help_pannel(_)
             return await message.reply_photo(
                 photo=config.START_IMG_URL,
-                has_spoiler=True,
                 caption=_["help_1"].format(config.SUPPORT_CHAT),
                 reply_markup=keyboard,
             )
         if name[0:3] == "sud":
-            await sudoers_list(client=client, message=message, _=_)
-            if await is_on_off(2):
-                return await app.send_message(
-                    chat_id=config.LOGGER_ID,
-                    text=f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
-                )
+            from AloneMusic.misc import SUDOERS
+            if message.from_user.id in SUDOERS or message.from_user.id == config.OWNER_ID:
+                await sudoers_list(client=client, message=message, _=_)
+                if await is_on_off(2):
+                    return await app.send_message(
+                        chat_id=config.LOGGER_ID,
+                        text=f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
+                    )
             return
         if name[0:3] == "inf":
             m = await message.reply_text("🔎")
@@ -98,7 +99,6 @@ async def start_pm(client, message: Message, _):
             await app.send_photo(
                 chat_id=message.chat.id,
                 photo=thumbnail,
-                has_spoiler=True,
                 caption=searched_text,
                 reply_markup=key,
             )
@@ -111,7 +111,6 @@ async def start_pm(client, message: Message, _):
         out = private_panel(_)
         await message.reply_photo(
             photo=config.START_IMG_URL,
-            has_spoiler=True,
             message_effect_id=random.choice(EFFECT_ID),
             caption=_["start_2"].format(message.from_user.mention, app.mention),
             reply_markup=InlineKeyboardMarkup(out),
@@ -131,7 +130,6 @@ async def start_gp(client, message: Message, _):
     cap = _["start_1"].format(app.mention, get_readable_time(uptime))
     await message.reply_photo(
         photo=config.START_IMG_URL,
-        has_spoiler=True,
         caption=cap,
         reply_markup=InlineKeyboardMarkup(out),
     )
@@ -167,7 +165,6 @@ async def welcome(client, message: Message):
                 out = start_panel(_)
                 await message.reply_photo(
                     photo=config.START_IMG_URL,
-                    has_spoiler=True,
                     caption=_["start_3"].format(
                         message.from_user.first_name,
                         app.mention,
