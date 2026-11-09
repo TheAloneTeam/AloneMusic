@@ -48,7 +48,6 @@ async def helper_private(client: app, update: types.Message | types.CallbackQuer
         cap = _["help_1"].format(SUPPORT_CHAT)
         await update.reply_photo(
             photo=START_IMG_URL,
-            has_spoiler=True,
             caption=cap,
             reply_markup=keyboard,
         )

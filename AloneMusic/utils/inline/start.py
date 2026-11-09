@@ -29,14 +29,35 @@ def private_panel(_):
     buttons = [
         [
             InlineKeyboardButton(
-                text=_["S_B_3"],
+                text="⚡ Add Me to Your Group",
                 url=f"https://t.me/{app.username}?startgroup=true",
             )
         ],
         [
-            InlineKeyboardButton(text=_["S_B_2"], callback_data="shiv_aarumi"),
-            InlineKeyboardButton(text="💌 ʏᴛ-ᴀᴘɪ", callback_data="bot_info_data"),
+            InlineKeyboardButton(
+                text="❓ Help & Commands",
+                callback_data="settings_back_helper",
+            ),
         ],
-        [InlineKeyboardButton(text=_["S_B_4"], callback_data="settings_back_helper")],
+        [
+            InlineKeyboardButton(
+                text="📢 Updates",
+                url=config.SUPPORT_CHANNEL,
+            ),
+            InlineKeyboardButton(
+                text="💬 Support",
+                url=config.SUPPORT_CHAT,
+            ),
+        ],
+        [
+            InlineKeyboardButton(
+                text="🌐 Language",
+                callback_data="LG",
+            ),
+            InlineKeyboardButton(
+                text="🐙 Source Code",
+                url=config.UPSTREAM_REPO,
+            ),
+        ],
     ]
     return buttons

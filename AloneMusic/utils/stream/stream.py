@@ -110,7 +110,6 @@ async def stream(
                 run = await app.send_photo(
                     original_chat_id,
                     photo=img,
-                    has_spoiler=True,
                     caption=_["stream_1"].format(
                         f"https://t.me/{app.username}?start=info_{vidid}",
                         title[:23],
@@ -138,7 +137,6 @@ async def stream(
                 pass
             return await app.send_photo(
                 original_chat_id,
-                has_spoiler=True,
                 photo=carbon,
                 caption=_["play_21"].format(position, link),
                 reply_markup=upl,
@@ -235,7 +233,7 @@ async def stream(
             )
             try:
                 run = await mystic.edit_media(
-                    media=InputMediaPhoto(img, caption=caption, has_spoiler=True),
+                    media=InputMediaPhoto(img, caption=caption),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
@@ -246,7 +244,6 @@ async def stream(
                 run = await app.send_photo(
                     original_chat_id,
                     photo=img,
-                    has_spoiler=True,
                     caption=caption,
                     reply_markup=InlineKeyboardMarkup(button),
                 )
@@ -308,7 +305,7 @@ async def stream(
             try:
                 run = await mystic.edit_media(
                     media=InputMediaPhoto(
-                        config.SOUNCLOUD_IMG_URL, caption=caption, has_spoiler=True
+                        config.SOUNCLOUD_IMG_URL, caption=caption
                     ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
@@ -320,7 +317,6 @@ async def stream(
                 run = await app.send_photo(
                     original_chat_id,
                     photo=config.SOUNCLOUD_IMG_URL,
-                    has_spoiler=True,
                     caption=caption,
                     reply_markup=InlineKeyboardMarkup(button),
                 )
@@ -384,7 +380,7 @@ async def stream(
             caption = _["stream_1"].format(link, title[:23], duration_min, user_name)
             try:
                 run = await mystic.edit_media(
-                    media=InputMediaPhoto(img, caption=caption, has_spoiler=True),
+                    media=InputMediaPhoto(img, caption=caption),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
@@ -394,7 +390,6 @@ async def stream(
                     pass
                 run = await app.send_photo(
                     original_chat_id,
-                    has_spoiler=True,
                     photo=img,
                     caption=caption,
                     reply_markup=InlineKeyboardMarkup(button),
@@ -472,7 +467,7 @@ async def stream(
             )
             try:
                 run = await mystic.edit_media(
-                    media=InputMediaPhoto(img, caption=caption, has_spoiler=True),
+                    media=InputMediaPhoto(img, caption=caption),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
             except Exception:
@@ -483,7 +478,6 @@ async def stream(
                 run = await app.send_photo(
                     original_chat_id,
                     photo=img,
-                    has_spoiler=True,
                     caption=caption,
                     reply_markup=InlineKeyboardMarkup(button),
                 )
@@ -535,7 +529,7 @@ async def stream(
             try:
                 run = await mystic.edit_media(
                     media=InputMediaPhoto(
-                        config.STREAM_IMG_URL, caption=caption, has_spoiler=True
+                        config.STREAM_IMG_URL, caption=caption
                     ),
                     reply_markup=InlineKeyboardMarkup(button),
                 )
@@ -547,7 +541,6 @@ async def stream(
                 run = await app.send_photo(
                     original_chat_id,
                     photo=config.STREAM_IMG_URL,
-                    has_spoiler=True,
                     caption=caption,
                     reply_markup=InlineKeyboardMarkup(button),
                 )
