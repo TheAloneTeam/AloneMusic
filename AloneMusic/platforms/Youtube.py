@@ -72,6 +72,27 @@ httpx.get = _patched_get
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
 API_KEY = os.getenv("API_KEY", "riteshpermanent_6e2e564b3b37175d82acfce7")
 
+# Secondary / fallback API endpoint for playback failover
+FALLBACK_API_URL = (
+    os.getenv("FALLBACK_API_URL")
+    or os.getenv("API_URL2")
+    or os.getenv("API_URL_2")
+    or "https://api.riteshyt.in"
+).rstrip("/")
+FALLBACK_API_KEY = (
+    os.getenv("FALLBACK_API_KEY")
+    or os.getenv("API_KEY2")
+    or os.getenv("API_KEY_2")
+    or API_KEY
+)
+
+# New download API endpoint and key
+DOWNLOAD_API_URL = (
+    os.getenv("DOWNLOAD_API_URL")
+    or "https://api.thequickearn.com/download"
+).rstrip("/")
+DOWNLOAD_API_KEY = os.getenv("DOWNLOAD_API_KEY", "free_tier_key")
+
 # ── Dynamic imports with graceful fallbacks ───────────────────
 try:
     from pyrogram.enums import MessageEntityType
@@ -249,15 +270,36 @@ class YouTubeAPI:
 
     async def _fetch_details(self, link):
         link = self._clean_link(link)
-        params = {"link": link}
-        if API_KEY:
-            params["api_key"] = API_KEY
-        try:
-            r = await (await self.get_client()).get(f"{API_URL}/details", params=params)
-            if r.status_code == 200:
-                return r.json()
-        except Exception as e:
-            logging.warning(f"Error fetching details from API: {e}")
+        client = await self.get_client()
+
+        # Try primary API_URL
+        if API_URL:
+            params = {"link": link}
+            if API_KEY:
+                params["api_key"] = API_KEY
+            try:
+                r = await client.get(f"{API_URL}/details", params=params)
+                if r.status_code == 200:
+                    data = r.json()
+                    if data:
+                        return data
+            except Exception as e:
+                logging.warning(f"Primary API details failed ({API_URL}): {e}")
+
+        # Failover to secondary FALLBACK_API_URL if different
+        if FALLBACK_API_URL and FALLBACK_API_URL != API_URL:
+            params = {"link": link}
+            if FALLBACK_API_KEY:
+                params["api_key"] = FALLBACK_API_KEY
+            try:
+                r = await client.get(f"{FALLBACK_API_URL}/details", params=params)
+                if r.status_code == 200:
+                    data = r.json()
+                    if data:
+                        return data
+            except Exception as e:
+                logging.warning(f"Secondary API details failed ({FALLBACK_API_URL}): {e}")
+
         return None
 
     async def details(self, link, videoid=None):
@@ -371,18 +413,27 @@ class YouTubeAPI:
         if videoid:
             link = self.listbase + link
         link = self._clean_link(link)
-        params = {"link": link, "limit": limit}
-        if API_KEY:
-            params["api_key"] = API_KEY
-        try:
-            r = await (await self.get_client()).get(
-                f"{API_URL}/playlist", params=params
-            )
-            if r.status_code == 200:
-                return r.json().get("videos")
-            LOGGER(__name__).error(f"API Playlist Error ({r.status_code}): {r.text}")
-        except Exception as e:
-            LOGGER(__name__).error(f"Error fetching playlist from API: {e}")
+        client = await self.get_client()
+
+        endpoints = []
+        if API_URL:
+            endpoints.append((API_URL, API_KEY))
+        if FALLBACK_API_URL and FALLBACK_API_URL != API_URL:
+            endpoints.append((FALLBACK_API_URL, FALLBACK_API_KEY))
+
+        for ep_url, ep_key in endpoints:
+            params = {"link": link, "limit": limit}
+            if ep_key:
+                params["api_key"] = ep_key
+            try:
+                r = await client.get(f"{ep_url}/playlist", params=params)
+                if r.status_code == 200:
+                    videos = r.json().get("videos")
+                    if videos:
+                        return videos
+            except Exception as e:
+                logging.warning(f"Playlist fetch error from {ep_url}: {e}")
+
         return None
 
     async def track(self, link, videoid=None):
@@ -425,21 +476,28 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
         link = self._clean_link(link)
+        client = await self.get_client()
+
+        endpoints = []
         if API_URL:
+            endpoints.append((API_URL, API_KEY))
+        if FALLBACK_API_URL and FALLBACK_API_URL != API_URL:
+            endpoints.append((FALLBACK_API_URL, FALLBACK_API_KEY))
+
+        for ep_url, ep_key in endpoints:
             params = {"link": link}
-            if API_KEY:
-                params["api_key"] = API_KEY
+            if ep_key:
+                params["api_key"] = ep_key
             try:
-                r = await (await self.get_client()).get(
-                    f"{API_URL}/formats", params=params
-                )
+                r = await client.get(f"{ep_url}/formats", params=params)
                 if r.status_code == 200:
                     f = r.json().get("formats", [])
-                    for x in f:
-                        x["yturl"] = link
-                    return f, link
+                    if f:
+                        for x in f:
+                            x["yturl"] = link
+                        return f, link
             except Exception as e:
-                logging.warning(f"Error fetching formats from API: {e}")
+                logging.warning(f"Error fetching formats from {ep_url}: {e}")
 
         def _extract():
             opts = {"quiet": True}
@@ -473,14 +531,20 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
         link = self._clean_link(link)
+        client = await self.get_client()
+
+        endpoints = []
         if API_URL:
+            endpoints.append((API_URL, API_KEY))
+        if FALLBACK_API_URL and FALLBACK_API_URL != API_URL:
+            endpoints.append((FALLBACK_API_URL, FALLBACK_API_KEY))
+
+        for ep_url, ep_key in endpoints:
             params = {"query": link, "limit": 10}
-            if API_KEY:
-                params["api_key"] = API_KEY
+            if ep_key:
+                params["api_key"] = ep_key
             try:
-                r = await (await self.get_client()).get(
-                    f"{API_URL}/search", params=params
-                )
+                r = await client.get(f"{ep_url}/search", params=params)
                 if r.status_code == 200:
                     result = r.json().get("result", [])
                     if result and len(result) > query_type:
@@ -496,7 +560,7 @@ class YouTubeAPI:
                             t["id"],
                         )
             except Exception as e:
-                logging.warning(f"Error in slider/search from API: {e}")
+                logging.warning(f"Error in slider/search from {ep_url}: {e}")
         if VideosSearch:
             try:
                 res = await VideosSearch(link, limit=10).next()
@@ -558,7 +622,7 @@ class YouTubeAPI:
     async def download(
         self,
         link,
-        mystic,
+        mystic=None,
         video=None,
         videoid=None,
         songaudio=None,
@@ -569,52 +633,109 @@ class YouTubeAPI:
         if videoid:
             link = self.base + link
 
-        async def _dl_api(ql, dt, fp):
-            if not API_URL:
-                return False
-            vidid = extract_vidid(ql) or ql
-            params = {"query": vidid, "dl_type": dt}
-            if API_KEY:
-                params["api_key"] = API_KEY
-            os.makedirs(os.path.dirname(fp), exist_ok=True)
+        link = self._clean_link(link)
+        dt = "video" if (video or songvideo) else "audio"
+        vidid = extract_vidid(link) or link
+        ext = "mp4" if dt == "video" else "mp3"
+        client = await self.get_client()
+
+        # Target file path
+        if songvideo:
+            fp = f"downloads/{title}.mp4"
+        elif songaudio:
+            fp = f"downloads/{title}.mp3"
+        else:
+            fp = f"downloads/{vidid}.{ext}"
+
+        # 1. First attempt: User's new download endpoint (https://api.thequickearn.com/download)
+        if DOWNLOAD_API_URL:
             try:
-                async with httpx.AsyncClient(timeout=600.0, follow_redirects=True) as c:
-                    async with c.stream(
-                        "GET", f"{API_URL}/download", params=params
-                    ) as r:
-                        if r.status_code != 200:
-                            return False
-                        with open(fp, "wb") as f:
-                            async for chunk in r.aiter_bytes(131072):
-                                f.write(chunk)
-                return os.path.exists(fp) and os.path.getsize(fp) > 0
+                os.makedirs(os.path.dirname(fp), exist_ok=True)
+                download_target = f"https://www.youtube.com/watch?v={vidid}" if len(str(vidid)) == 11 else link
+                params = {
+                    "api_key": DOWNLOAD_API_KEY,
+                    "query": download_target,
+                    "dl_type": dt,
+                }
+                # Support requests in executor matching user provided snippet with httpx fallback
+                resp_json = None
+                try:
+                    import requests
+                    loop = asyncio.get_running_loop()
+                    resp = await loop.run_in_executor(
+                        None, lambda: requests.get(DOWNLOAD_API_URL, params=params, timeout=15)
+                    )
+                    resp_json = resp.json()
+                except Exception:
+                    # Async httpx fallback
+                    r = await client.get(DOWNLOAD_API_URL, params=params, timeout=15.0)
+                    if r.status_code == 200:
+                        resp_json = r.json()
+
+                if resp_json and resp_json.get("status") == "success":
+                    download_url = resp_json.get("download_url")
+                    if download_url:
+                        # Download stream chunks from download_url into fp
+                        async with httpx.AsyncClient(timeout=600.0, follow_redirects=True) as c:
+                            async with c.stream("GET", download_url) as r_stream:
+                                if r_stream.status_code == 200:
+                                    with open(fp, "wb") as f:
+                                        async for chunk in r_stream.aiter_bytes(131072):
+                                            f.write(chunk)
+                        if os.path.exists(fp) and os.path.getsize(fp) > 0:
+                            if songvideo or songaudio:
+                                return fp
+                            return fp, True
             except Exception as e:
-                logging.warning(f"API download failed for {vidid}: {e}")
+                logging.warning(f"Download endpoint ({DOWNLOAD_API_URL}) failed: {e}")
                 if os.path.exists(fp):
                     try:
                         os.remove(fp)
                     except Exception:
                         pass
+
+        # 2. Secondary fallback: Primary & Secondary _dl_api endpoints
+        async def _dl_api(base_url, base_key, ql, dl_mode, target_fp):
+            if not base_url:
+                return False
+            q_id = extract_vidid(ql) or ql
+            params = {"query": q_id, "dl_type": dl_mode}
+            if base_key:
+                params["api_key"] = base_key
+            os.makedirs(os.path.dirname(target_fp), exist_ok=True)
+            try:
+                async with httpx.AsyncClient(timeout=600.0, follow_redirects=True) as c:
+                    async with c.stream(
+                        "GET", f"{base_url}/download", params=params
+                    ) as r:
+                        if r.status_code != 200:
+                            return False
+                        with open(target_fp, "wb") as f:
+                            async for chunk in r.aiter_bytes(131072):
+                                f.write(chunk)
+                return os.path.exists(target_fp) and os.path.getsize(target_fp) > 0
+            except Exception as e:
+                logging.warning(f"API download failed from {base_url} for {q_id}: {e}")
+                if os.path.exists(target_fp):
+                    try:
+                        os.remove(target_fp)
+                    except Exception:
+                        pass
                 return False
 
+        endpoints = []
         if API_URL:
-            dt = "video" if (video or songvideo) else "audio"
-            link = self._clean_link(link)
-            vidid = extract_vidid(link) or link
-            ext = "mp4" if dt == "video" else "mp3"
-            if songvideo:
-                fp = f"downloads/{title}.mp4"
-                if await _dl_api(link, "video", fp):
-                    return fp
-            elif songaudio:
-                fp = f"downloads/{title}.mp3"
-                if await _dl_api(link, "audio", fp):
-                    return fp
-            else:
-                fp = f"downloads/{vidid}.{ext}"
+            endpoints.append((API_URL, API_KEY))
+        if FALLBACK_API_URL and FALLBACK_API_URL != API_URL:
+            endpoints.append((FALLBACK_API_URL, FALLBACK_API_KEY))
+
+        for ep_url, ep_key in endpoints:
+            if not (songvideo or songaudio):
                 asyncio.create_task(self.prefetch(link, video=bool(dt == "video")))
-                if await _dl_api(link, dt, fp):
-                    return fp, True
+            if await _dl_api(ep_url, ep_key, link, dt, fp):
+                if songvideo or songaudio:
+                    return fp
+                return fp, True
         loop = asyncio.get_running_loop()
         _base_opts = {
             "geo_bypass": True,
