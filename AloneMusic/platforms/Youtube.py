@@ -70,7 +70,7 @@ httpx.get = _patched_get
 
 # ── Config ────────────────────────────────────────────────────
 API_URL = os.getenv("API_URL", "https://www.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree6e2e564b3b37175d82acfce7")
+API_KEY = os.getenv("API_KEY", "riteshpermanent_6e2e564b3b37175d82acfce7")
 
 # ── Dynamic imports with graceful fallbacks ───────────────────
 try:
