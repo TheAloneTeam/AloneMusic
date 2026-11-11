@@ -141,7 +141,11 @@ async def skip(cli, message: Message, _, chat_id):
             check[0]["dur"],
             user,
         )
-        img = await get_thumb(videoid)
+        img = await get_thumb(
+            videoid,
+            title=title,
+            duration=check[0]["dur"],
+        )
         run = await message.reply_photo(
             photo=img,
             caption=cap,
@@ -176,7 +180,12 @@ async def skip(cli, message: Message, _, chat_id):
             check[0]["dur"],
             user,
         )
-        img = await get_thumb(videoid)
+        img = await get_thumb(
+            videoid,
+            title=title,
+            duration=check[0]["dur"],
+            thumb_url=image,
+        )
         run = await message.reply_photo(
             photo=img,
             caption=cap,
@@ -252,7 +261,11 @@ async def skip(cli, message: Message, _, chat_id):
                 check[0]["dur"],
                 user,
             )
-            img = await get_thumb(videoid)
+            img = await get_thumb(
+                videoid,
+                title=title,
+                duration=check[0]["dur"],
+            )
             run = await message.reply_photo(
                 photo=img,
                 caption=cap,

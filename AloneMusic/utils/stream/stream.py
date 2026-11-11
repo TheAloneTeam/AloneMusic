@@ -105,7 +105,12 @@ async def stream(
                     "video" if video else "audio",
                     forceplay=forceplay,
                 )
-                img = await get_thumb(vidid)
+                img = await get_thumb(
+                    vidid,
+                    title=title,
+                    duration=duration_min,
+                    thumb_url=thumbnail,
+                )
                 button = stream_markup(_, chat_id)
                 run = await app.send_photo(
                     original_chat_id,
@@ -223,7 +228,12 @@ async def stream(
                 "video" if video else "audio",
                 forceplay=forceplay,
             )
-            img = await get_thumb(vidid)
+            img = await get_thumb(
+                vidid,
+                title=title,
+                duration=duration_min,
+                thumb_url=thumbnail,
+            )
             button = stream_markup(_, chat_id)
             caption = _["stream_1"].format(
                 f"https://t.me/{app.username}?start=info_{vidid}",
@@ -457,7 +467,12 @@ async def stream(
                 "video" if video else "audio",
                 forceplay=forceplay,
             )
-            img = await get_thumb(vidid)
+            img = await get_thumb(
+                vidid,
+                title=title,
+                duration=duration_min,
+                thumb_url=thumbnail,
+            )
             button = stream_markup(_, chat_id)
             caption = _["stream_1"].format(
                 f"https://t.me/{app.username}?start=info_{vidid}",
