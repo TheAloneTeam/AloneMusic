@@ -23,7 +23,7 @@ API_KEY = (
     os.getenv("API_KEY")
     or os.getenv("ALONE_API_KEY")
     or os.getenv("RITESH_API_KEY")
-    or "riteshfree2627b9aa922c4c84e1779ec9"
+    or "riteshfree6e2e564b3b37175d82acfce7"
 )
 
 DEFAULT_API_URL = API_URL
