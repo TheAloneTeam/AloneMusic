@@ -239,7 +239,11 @@ async def del_back_playlist(client, CallbackQuery, _):
                 duration,
                 user,
             )
-            img = await get_thumb(videoid)
+            img = await get_thumb(
+                videoid,
+                title=title,
+                duration=duration,
+            )
             run = await CallbackQuery.message.reply_photo(
                 photo=img,
                 caption=cap,
@@ -276,7 +280,12 @@ async def del_back_playlist(client, CallbackQuery, _):
                 duration,
                 user,
             )
-            img = await get_thumb(videoid)
+            img = await get_thumb(
+                videoid,
+                title=title,
+                duration=duration,
+                thumb_url=image,
+            )
             run = await CallbackQuery.message.reply_photo(
                 photo=img,
                 caption=cap,
@@ -350,7 +359,11 @@ async def del_back_playlist(client, CallbackQuery, _):
                     duration,
                     user,
                 )
-                img = await get_thumb(videoid)
+                img = await get_thumb(
+                    videoid,
+                    title=title,
+                    duration=duration,
+                )
                 run = await CallbackQuery.message.reply_photo(
                     photo=img,
                     caption=cap,

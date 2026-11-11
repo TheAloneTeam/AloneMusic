@@ -50,7 +50,7 @@ async def fetch_image(url):
                     return Image.open(BytesIO(data)).convert("RGBA")
     except Exception:
         pass
-    return Image.new("RGBA", (1920, 1080), (30, 30, 30))
+    return None
 
 # ================= LETTERBOX TRIM & ROUNDED COVER =================
 def trim_black_bars(img, threshold=15):
@@ -106,9 +106,9 @@ def make_cover(img, size=(270, 270), radius=25):
     return rounded
 
 # ================= UI =================
-async def add_ui(bg):
+def _render_thumb(img, title, channel, duration, path):
     # Canvas size 1920x1080
-    bg = ImageOps.fit(bg, (1920, 1080), Image.Resampling.LANCZOS)
+    bg = ImageOps.fit(img, (1920, 1080), Image.Resampling.LANCZOS)
     bg = bg.filter(ImageFilter.GaussianBlur(60))
 
     # Center card (size 1000x700, radius 60)
@@ -128,30 +128,6 @@ async def add_ui(bg):
         bg.paste(controls, (502, 600), controls)
     except Exception:
         pass
-
-    return bg
-
-# ================= MAIN =================
-async def get_thumb(videoid: str):
-    if not re.match(r"^[a-zA-Z0-9_-]{11}$", videoid):
-        return ""
-
-    os.makedirs("database/photos", exist_ok=True)
-    path = f"database/photos/{videoid}.png"
-
-    try:
-        data = (await VideosSearch(f"https://youtube.com/watch?v={videoid}", limit=1).next())["result"][0]
-
-        title = clean_text(data.get("title", "Unknown"), limit=25)
-        channel = clean_text(data.get("channel", {}).get("name", "") if isinstance(data.get("channel"), dict) else "", limit=35)
-        duration = data.get("duration", "0:00")
-        thumb = data["thumbnails"][0]["url"].split("?")[0]
-    except Exception:
-        title, channel, duration = "Unknown", "", "0:00"
-        thumb = ""
-
-    img = await fetch_image(thumb)
-    bg = await add_ui(img)
 
     cover = make_cover(img, size=(270, 270), radius=25)
     bg.paste(cover, (535, 275), cover)
@@ -187,6 +163,76 @@ async def get_thumb(videoid: str):
     bg = ImageEnhance.Contrast(bg).enhance(1.15)
     bg = ImageEnhance.Color(bg).enhance(1.2)
 
-    await asyncio.to_thread(bg.save, path)
+    bg.save(path)
+    return path
+
+
+# ================= MAIN =================
+async def get_thumb(
+    videoid: str,
+    title: str | None = None,
+    duration: str | None = None,
+    thumb_url: str | None = None,
+    channel: str | None = None,
+):
+    if not re.match(r"^[a-zA-Z0-9_-]{11}$", videoid):
+        return ""
+
+    os.makedirs("database/photos", exist_ok=True)
+    path = f"database/photos/{videoid}.png"
+
+    # Quick disk cache check
+    if os.path.isfile(path) and os.path.getsize(path) > 0:
+        return path
+
+    clean_title = clean_text(title, limit=25) if title else ""
+    clean_duration = str(duration) if duration else ""
+    clean_channel = clean_text(channel, limit=35) if channel else ""
+
+    img = None
+    # 1. Try provided thumbnail URL
+    if thumb_url:
+        img = await fetch_image(thumb_url.split("?")[0])
+
+    # 2. Try YouTube high-res / standard direct CDNs
+    if img is None:
+        img = await fetch_image(f"https://img.youtube.com/vi/{videoid}/maxresdefault.jpg")
+    if img is None:
+        img = await fetch_image(f"https://img.youtube.com/vi/{videoid}/hqdefault.jpg")
+
+    # 3. If title or duration are missing, or images failed, fallback to VideosSearch
+    if not clean_title or not clean_duration or img is None:
+        try:
+            data = (await VideosSearch(f"https://youtube.com/watch?v={videoid}", limit=1).next())["result"][0]
+            if not clean_title:
+                clean_title = clean_text(data.get("title", "Unknown"), limit=25)
+            if not clean_channel:
+                clean_channel = clean_text(
+                    data.get("channel", {}).get("name", "") if isinstance(data.get("channel"), dict) else "",
+                    limit=35,
+                )
+            if not clean_duration:
+                clean_duration = data.get("duration", "0:00")
+            if img is None:
+                yt_thumb = data.get("thumbnails", [{}])[0].get("url", "").split("?")[0]
+                img = await fetch_image(yt_thumb)
+        except Exception:
+            pass
+
+    if not clean_title:
+        clean_title = "Unknown"
+    if not clean_duration:
+        clean_duration = "0:00"
+    if img is None:
+        img = Image.new("RGBA", (1920, 1080), (30, 30, 30))
+
+    await asyncio.to_thread(
+        _render_thumb,
+        img,
+        clean_title,
+        clean_channel,
+        clean_duration,
+        path,
+    )
 
     return path
