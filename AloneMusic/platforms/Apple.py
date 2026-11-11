@@ -17,7 +17,7 @@ from bs4 import BeautifulSoup
 from youtubesearchpython import VideosSearch
 
 API_URL = os.getenv("API_URL", "https://api.riteshyt.in").rstrip("/")
-API_KEY = os.getenv("API_KEY", "riteshfree2627b9aa922c4c84e1779ec9")
+API_KEY = os.getenv("API_KEY", "riteshfree6e2e564b3b37175d82acfce7")
 
 
 def _search_yt_dlp(query: str):
