@@ -572,29 +572,36 @@ class YouTubeAPI:
         async def _dl_api(ql, dt, fp):
             if not API_URL:
                 return False
+            if os.path.exists(fp) and os.path.getsize(fp) > 0:
+                return True
             vidid = extract_vidid(ql) or ql
             params = {"query": vidid, "dl_type": dt}
             if API_KEY:
                 params["api_key"] = API_KEY
             os.makedirs(os.path.dirname(fp), exist_ok=True)
+            tmp_fp = f"{fp}.part"
             try:
-                async with httpx.AsyncClient(timeout=600.0, follow_redirects=True) as c:
-                    async with c.stream(
-                        "GET", f"{API_URL}/download", params=params
-                    ) as r:
-                        if r.status_code != 200:
-                            return False
-                        with open(fp, "wb") as f:
-                            async for chunk in r.aiter_bytes(131072):
-                                f.write(chunk)
-                return os.path.exists(fp) and os.path.getsize(fp) > 0
+                client = await self.get_client()
+                async with client.stream(
+                    "GET", f"{API_URL}/download", params=params
+                ) as r:
+                    if r.status_code != 200:
+                        return False
+                    with open(tmp_fp, "wb") as f:
+                        async for chunk in r.aiter_bytes(65536):
+                            f.write(chunk)
+                if os.path.exists(tmp_fp) and os.path.getsize(tmp_fp) > 0:
+                    os.replace(tmp_fp, fp)
+                    return True
+                return False
             except Exception as e:
                 logging.warning(f"API download failed for {vidid}: {e}")
-                if os.path.exists(fp):
-                    try:
-                        os.remove(fp)
-                    except Exception:
-                        pass
+                for p in (tmp_fp, fp):
+                    if os.path.exists(p):
+                        try:
+                            os.remove(p)
+                        except Exception:
+                            pass
                 return False
 
         if API_URL:
